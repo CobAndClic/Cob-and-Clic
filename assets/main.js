@@ -27,116 +27,229 @@
   });
 })();
 
-/* ====== PLANNER (créneaux 24/24, no past) ====== */
+/* ====== PLANNER OPTIONNEL ====== */
 (function () {
+  const form = document.getElementById('contact-request-form');
   const root = document.getElementById('planner');
-  if (!root) return;
+  const requestType = document.getElementById('request_type');
+  if (!form || !root || !requestType) return;
 
-  const profileSel = root.querySelector('[name="planner_profile"]');
-  const dateInp    = document.getElementById('planner_date');
-  const timeSel    = document.getElementById('planner_time');
-  const urgentChk  = root.querySelector('[name="planner_urgent"]');
-  const rateEl     = document.getElementById('planner_rate');
-  const noteEl     = document.getElementById('planner_note');
-  const hiddenIso  = root.querySelector('[name="planner_datetime"]');
+  const profileSel = document.getElementById('planner_profile');
+  const customerProfile = document.getElementById('customer_profile');
+  const dateInp = document.getElementById('planner_date');
+  const timeSel = document.getElementById('planner_time');
+  const urgentChk = document.getElementById('planner_urgent');
+  const rateEl = document.getElementById('planner_rate');
+  const noteEl = document.getElementById('planner_note');
+
+  const slotInput = document.getElementById('contact_planner_slot');
+  const rateInput = document.getElementById('contact_planner_rate');
+  const noteInput = document.getElementById('contact_planner_note');
+
+  const appointmentValue = 'Demande d’intervention / prise de rendez-vous';
+  const plannerControls = [
+    profileSel,
+    dateInp,
+    timeSel,
+    urgentChk,
+    slotInput,
+    rateInput,
+    noteInput
+  ];
 
   const pad = (n) => String(n).padStart(2, '0');
+
   const localDateStr = (date = new Date()) => {
-    const y = date.getFullYear();
-    const m = pad(date.getMonth() + 1);
-    const d = pad(date.getDate());
-    return `${y}-${m}-${d}`;
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    return `${year}-${month}-${day}`;
   };
 
   function getNextHalfHour(now = new Date()) {
-    const n = new Date(now);
-    n.setSeconds(0, 0);
-    const m = n.getMinutes();
-    if (m < 30) n.setMinutes(30);
-    else { n.setMinutes(0); n.setHours(n.getHours() + 1); }
-    return n;
+    const next = new Date(now);
+    next.setSeconds(0, 0);
+
+    if (next.getMinutes() < 30) {
+      next.setMinutes(30);
+    } else {
+      next.setMinutes(0);
+      next.setHours(next.getHours() + 1);
+    }
+
+    return next;
   }
 
-  function buildTimesForDate(dateStrVal) {
+  function buildTimesForDate(dateValue) {
+    if (!dateValue) {
+      timeSel.innerHTML = '<option value="">Choisir une heure</option>';
+      return;
+    }
+
     const now = new Date();
     const today = localDateStr(now);
-    let startH = 0, startM = 0;
+    let startHour = 0;
+    let startMinute = 0;
 
-    if (dateStrVal === today) {
+    if (dateValue === today) {
       const next = getNextHalfHour(now);
+
       if (localDateStr(next) !== today) {
         const tomorrow = new Date(now);
         tomorrow.setDate(now.getDate() + 1);
         dateInp.value = localDateStr(tomorrow);
       } else {
-        startH = next.getHours();
-        startM = next.getMinutes();
+        startHour = next.getHours();
+        startMinute = next.getMinutes();
       }
     }
 
-    const opts = [];
-    for (let h = startH; h < 24; h++) {
-      const minutes = (h === startH && startM === 30) ? [30] : [0, 30];
-      for (const m of minutes) opts.push(`${pad(h)}:${pad(m)}`);
+    const times = [];
+
+    for (let hour = startHour; hour < 24; hour += 1) {
+      const minutes =
+        hour === startHour && startMinute === 30 ? [30] : [0, 30];
+
+      minutes.forEach((minute) => {
+        times.push(`${pad(hour)}:${pad(minute)}`);
+      });
     }
 
-    timeSel.innerHTML = opts.map(t => `<option value="${t}">${t}</option>`).join('');
-    if (opts.length) timeSel.value = opts[0];
+    timeSel.innerHTML =
+      '<option value="">Choisir une heure</option>' +
+      times
+        .map((time) => `<option value="${time}">${time}</option>`)
+        .join('');
+  }
+
+  function syncProfile() {
+    const mapping = {
+      Particulier: 'particulier',
+      Professionnel: 'professionnel',
+      'Collectivité / association': 'collectivite'
+    };
+
+    profileSel.value = mapping[customerProfile.value] || 'particulier';
   }
 
   function compute() {
-    const dateStrVal = dateInp.value;
-    const timeStrVal = timeSel.value;
-    if (!dateStrVal || !timeStrVal) {
-      rateEl.textContent = '—';
-      noteEl.textContent = 'Sélectionnez date et heure.';
+    const dateValue = dateInp.value;
+    const timeValue = timeSel.value;
+
+    if (!dateValue || !timeValue) {
+      rateEl.textContent = '-';
+      noteEl.textContent = 'Choisissez une date et une heure.';
+      slotInput.value = '';
+      rateInput.value = '';
+      noteInput.value = '';
       return;
     }
 
-    if (dateStrVal === localDateStr()) {
-      const selected = new Date(`${dateStrVal}T${timeStrVal}:00`);
-      if (selected <= new Date()) buildTimesForDate(dateStrVal);
+    const isParticulier = profileSel.value === 'particulier';
+    const baseRate = isParticulier ? 70 : 90;
+    const taxLabel = isParticulier ? 'TTC' : 'HT';
+    const hour = Number(timeValue.split(':')[0]);
+
+    let timeIncrease = 0;
+
+    if (hour >= 20 && hour < 23) {
+      timeIncrease = 0.25;
+    } else if (hour >= 23 || hour < 6) {
+      timeIncrease = 0.50;
+    } else if (hour >= 6 && hour < 8) {
+      timeIncrease = 0.25;
     }
 
-    const isParticulier = profileSel.value === 'particulier';
-    const base = isParticulier ? 70 : 90;
-    const label = isParticulier ? 'TTC' : 'HT';
-
-    const [hh] = timeStrVal.split(':').map(Number);
-    const chosen = new Date(`${dateStrVal}T${timeStrVal}:00`);
-    if (hiddenIso) hiddenIso.value = chosen.toISOString();
-
-    let maj = 0;
-    if (hh >= 20 && hh < 23) maj = 0.25;
-    else if (hh >= 23 || hh < 6) maj = 0.50;
-    else if (hh >= 6 && hh < 8) maj = 0.25;
-
-    const urg = urgentChk.checked ? 0.25 : 0;
-    const price = base * (1 + maj + urg);
-    rateEl.textContent = `${price.toFixed(2)} € / h ${label}`;
+    const urgentIncrease = urgentChk.checked ? 0.25 : 0;
+    const price = baseRate * (1 + timeIncrease + urgentIncrease);
 
     const notes = [];
-    if (maj === 0.25 && hh >= 20 && hh < 23) notes.push('+25% soir 20–23');
-    if (maj === 0.50) notes.push('+50% nuit 23–06');
-    if (maj === 0.25 && hh >= 6 && hh < 8) notes.push('+25% matin 06–08');
-    if (urg) notes.push('+25% urgence');
-    if (!notes.length) notes.push('Créneau standard');
-    noteEl.textContent = notes.join(' · ');
+
+    if (timeIncrease === 0.25 && hour >= 20 && hour < 23) {
+      notes.push('+25 % soirée 20 h–23 h');
+    }
+
+    if (timeIncrease === 0.50) {
+      notes.push('+50 % nuit 23 h–6 h');
+    }
+
+    if (timeIncrease === 0.25 && hour >= 6 && hour < 8) {
+      notes.push('+25 % matin 6 h–8 h');
+    }
+
+    if (urgentIncrease) {
+      notes.push('+25 % urgence');
+    }
+
+    if (!notes.length) {
+      notes.push('Créneau standard');
+    }
+
+    const rateText = `${price.toFixed(2)} € / h ${taxLabel}`;
+    const noteText = notes.join(' · ');
+
+    rateEl.textContent = rateText;
+    noteEl.textContent = noteText;
+
+    slotInput.value = `${dateValue} à ${timeValue}`;
+    rateInput.value = rateText;
+    noteInput.value = noteText;
   }
 
-  const today = localDateStr();
-  dateInp.min = today;
-  dateInp.value = today;
-  buildTimesForDate(today);
-  compute();
+  function setPlannerEnabled(enabled) {
+    root.hidden = !enabled;
 
-  dateInp.addEventListener('change', () => { buildTimesForDate(dateInp.value); compute(); });
+    plannerControls.forEach((control) => {
+      if (control) control.disabled = !enabled;
+    });
+
+    dateInp.required = enabled;
+    timeSel.required = enabled;
+
+    if (enabled) {
+      syncProfile();
+
+      const today = localDateStr();
+      dateInp.min = today;
+
+      if (!dateInp.value) {
+        dateInp.value = today;
+      }
+
+      buildTimesForDate(dateInp.value);
+      compute();
+    } else {
+      dateInp.required = false;
+      timeSel.required = false;
+      urgentChk.checked = false;
+      slotInput.value = '';
+      rateInput.value = '';
+      noteInput.value = '';
+    }
+  }
+
+  requestType.addEventListener('change', () => {
+    setPlannerEnabled(requestType.value === appointmentValue);
+  });
+
+  customerProfile.addEventListener('change', () => {
+    syncProfile();
+    compute();
+  });
+
+  dateInp.addEventListener('change', () => {
+    buildTimesForDate(dateInp.value);
+    compute();
+  });
+
   timeSel.addEventListener('change', compute);
   profileSel.addEventListener('change', compute);
   urgentChk.addEventListener('change', compute);
+
+  setPlannerEnabled(requestType.value === appointmentValue);
 })();
 
-/* ====== FORMULAIRE DE CONTACT : envoi direct vers Cob & Clic ====== */
+/* ====== FORMULAIRE DE CONTACT : ENVOI DIRECT ====== */
 (function () {
   const form = document.getElementById('contact-request-form');
   if (!form) return;
@@ -145,9 +258,8 @@
   const submitButton = document.getElementById('contact_submit');
   const statusElement = document.getElementById('contact-form-status');
   const subjectInput = document.getElementById('contact_subject');
-  const slotInput = document.getElementById('contact_planner_slot');
-  const rateInput = document.getElementById('contact_planner_rate');
-  const noteInput = document.getElementById('contact_planner_note');
+  const requestType = document.getElementById('request_type');
+  const serviceType = document.getElementById('service_type');
 
   function setStatus(message, type) {
     statusElement.textContent = message;
@@ -155,29 +267,8 @@
     statusElement.focus({ preventScroll: true });
   }
 
-  function updatePlannerFields() {
-    const plannerDate = document.getElementById('planner_date')?.value || '';
-    const plannerTime = document.getElementById('planner_time')?.value || '';
-    const plannerRate = document.getElementById('planner_rate')?.textContent?.trim() || '';
-    const plannerNote = document.getElementById('planner_note')?.textContent?.trim() || '';
-
-    slotInput.value =
-      plannerDate && plannerTime
-        ? `${plannerDate} à ${plannerTime}`
-        : 'Non renseigné';
-
-    rateInput.value =
-      plannerRate && plannerRate !== '-'
-        ? plannerRate
-        : 'Non renseigné';
-
-    noteInput.value =
-      plannerNote && plannerNote !== '-'
-        ? plannerNote
-        : 'Non renseigné';
-  }
-
   const query = new URLSearchParams(window.location.search);
+
   if (query.get('envoi') === 'ok') {
     setStatus(
       'Votre demande a bien été envoyée à Cob & Clic. Vous recevrez une réponse dès que possible.',
@@ -185,6 +276,7 @@
     );
 
     query.delete('envoi');
+
     const cleanQuery = query.toString();
     const cleanUrl =
       window.location.pathname +
@@ -202,11 +294,8 @@
     const honeyPot = form.querySelector('[name="_honey"]');
     if (honeyPot?.value) return;
 
-    updatePlannerFields();
-
-    const selectedService =
-      document.getElementById('service_type')?.value || 'Intervention';
-    subjectInput.value = `Demande Cob & Clic – ${selectedService}`;
+    subjectInput.value =
+      `Cob & Clic – ${requestType.value} – ${serviceType.value}`;
 
     const originalButtonText = submitButton.textContent;
     submitButton.disabled = true;
@@ -223,6 +312,7 @@
       });
 
       let responseData = {};
+
       try {
         responseData = await response.json();
       } catch (_) {
@@ -231,17 +321,21 @@
 
       if (!response.ok || responseData.success === false) {
         throw new Error(
-          responseData.message || 'Le service de formulaire a refusé la demande.'
+          responseData.message ||
+          'Le service de formulaire a refusé la demande.'
         );
       }
 
       form.reset();
+      requestType.dispatchEvent(new Event('change'));
+
       setStatus(
         'Votre demande a bien été envoyée à Cob & Clic. Vous recevrez une réponse dès que possible.',
         'success'
       );
     } catch (error) {
       console.error('Échec de l’envoi du formulaire :', error);
+
       setStatus(
         'L’envoi automatique n’a pas abouti. Réessayez dans quelques instants, écrivez à contact@cobandclic.fr ou appelez le 07 81 02 51 18.',
         'error'

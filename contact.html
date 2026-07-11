@@ -180,86 +180,15 @@
         </div>
       </section>
 
-      <section
-        class="planner"
-        id="planner"
-        aria-labelledby="planner-title"
-      >
-        <h2 id="planner-title">Estimation d’un créneau d’intervention</h2>
-
-        <p class="notice">
-          Cet outil fournit une estimation du tarif applicable au créneau
-          choisi. La disponibilité et le montant définitif sont confirmés
-          après échange.
-        </p>
-
-        <div class="grid">
-          <label for="planner_profile">
-            Profil<br />
-            <select id="planner_profile" name="planner_profile">
-              <option value="particulier">
-                Particulier – 70 € / h TTC
-              </option>
-              <option value="professionnel">
-                Professionnel – 90 € / h HT
-              </option>
-              <option value="collectivite">
-                Collectivité – 90 € / h HT
-              </option>
-            </select>
-          </label>
-
-          <label for="planner_date">
-            Date souhaitée<br />
-            <input
-              type="date"
-              id="planner_date"
-              name="planner_date"
-            />
-          </label>
-
-          <label for="planner_time">
-            Heure souhaitée<br />
-            <select id="planner_time" name="planner_time"></select>
-          </label>
-
-          <label class="checkbox-label" for="planner_urgent">
-            Urgent si non planifiable<br />
-            <input
-              type="checkbox"
-              id="planner_urgent"
-              name="planner_urgent"
-            />
-          </label>
-        </div>
-
-        <input
-          type="hidden"
-          id="planner_datetime"
-          name="planner_datetime"
-        />
-
-        <div class="result" aria-live="polite">
-          <div class="rate" id="planner_rate">-</div>
-          <div class="notice" id="planner_note">-</div>
-        </div>
-
-        <p class="notice">
-          Majorations : +25 % de 20 h à 23 h · +50 % de 23 h à 6 h ·
-          +25 % de 6 h à 8 h · +25 % en cas d’urgence non planifiable.
-        </p>
-      </section>
-
       <div class="divider"></div>
 
       <section aria-labelledby="contact-form">
         <h2 id="contact-form">Envoyer une demande</h2>
 
         <p>
-          Remplissez les informations ci-dessous puis cliquez sur
-          <strong>Envoyer ma demande</strong>. Le message sera transmis
-          directement à <strong>contact@cobandclic.fr</strong>, sans ouvrir
-          votre messagerie.
+          Sélectionnez le type de demande puis décrivez votre besoin.
+          Un créneau ne sera transmis que si vous choisissez
+          <strong>Demande d’intervention / prise de rendez-vous</strong>.
         </p>
 
         <form
@@ -281,24 +210,6 @@
             name="_next"
             value="https://www.cobandclic.fr/contact.html?envoi=ok#contact-form"
           />
-          <input
-            type="hidden"
-            name="Créneau souhaité"
-            id="contact_planner_slot"
-            value="Non renseigné"
-          />
-          <input
-            type="hidden"
-            name="Tarif estimé"
-            id="contact_planner_rate"
-            value="Non renseigné"
-          />
-          <input
-            type="hidden"
-            name="Détail du tarif"
-            id="contact_planner_note"
-            value="Non renseigné"
-          />
 
           <div class="form-honeypot" aria-hidden="true">
             <label for="contact_company">Ne pas remplir ce champ</label>
@@ -310,6 +221,28 @@
               autocomplete="off"
             />
           </div>
+
+          <label for="request_type" style="grid-column:1 / -1">
+            Type de demande<br />
+            <select
+              id="request_type"
+              name="Type de demande"
+              required
+            >
+              <option value="Demande de renseignements" selected>
+                Demande de renseignements
+              </option>
+              <option value="Demande d’intervention / prise de rendez-vous">
+                Demande d’intervention / prise de rendez-vous
+              </option>
+              <option value="Demande de devis – création de site web">
+                Demande de devis – création de site web
+              </option>
+              <option value="Autre demande">
+                Autre demande
+              </option>
+            </select>
+          </label>
 
           <label for="customer_name">
             Nom<br />
@@ -344,7 +277,6 @@
               autocomplete="tel"
               inputmode="tel"
               maxlength="30"
-              required
             />
           </label>
 
@@ -399,9 +331,110 @@
               rows="8"
               maxlength="5000"
               required
-              placeholder="Décrivez le problème avec vos mots, le matériel concerné, votre commune et vos disponibilités."
+              placeholder="Décrivez votre demande avec vos mots, le matériel concerné, votre commune et toute information utile."
             ></textarea>
           </label>
+
+          <section
+            class="planner"
+            id="planner"
+            aria-labelledby="planner-title"
+            style="grid-column:1 / -1"
+            hidden
+          >
+            <h3 id="planner-title">
+              Demande d’intervention / prise de rendez-vous
+            </h3>
+
+            <p class="notice">
+              Le créneau choisi correspond à une préférence et non à une
+              réservation définitive. Cob & Clic vous recontactera pour le
+              confirmer.
+            </p>
+
+            <div class="grid">
+              <label for="planner_profile">
+                Tarif applicable<br />
+                <select
+                  id="planner_profile"
+                  name="Profil tarifaire"
+                  disabled
+                >
+                  <option value="particulier">
+                    Particulier – 70 € / h TTC
+                  </option>
+                  <option value="professionnel">
+                    Professionnel – 90 € / h HT
+                  </option>
+                  <option value="collectivite">
+                    Collectivité – 90 € / h HT
+                  </option>
+                </select>
+              </label>
+
+              <label for="planner_date">
+                Date souhaitée<br />
+                <input
+                  type="date"
+                  id="planner_date"
+                  name="Date souhaitée"
+                  disabled
+                />
+              </label>
+
+              <label for="planner_time">
+                Heure souhaitée<br />
+                <select
+                  id="planner_time"
+                  name="Heure souhaitée"
+                  disabled
+                ></select>
+              </label>
+
+              <label class="checkbox-label" for="planner_urgent">
+                Intervention urgente<br />
+                <input
+                  type="checkbox"
+                  id="planner_urgent"
+                  name="Urgence"
+                  value="Oui"
+                  disabled
+                />
+              </label>
+            </div>
+
+            <input
+              type="hidden"
+              name="Créneau souhaité"
+              id="contact_planner_slot"
+              value=""
+              disabled
+            />
+            <input
+              type="hidden"
+              name="Tarif estimé"
+              id="contact_planner_rate"
+              value=""
+              disabled
+            />
+            <input
+              type="hidden"
+              name="Détail du tarif"
+              id="contact_planner_note"
+              value=""
+              disabled
+            />
+
+            <div class="result" aria-live="polite">
+              <div class="rate" id="planner_rate">-</div>
+              <div class="notice" id="planner_note">-</div>
+            </div>
+
+            <p class="notice">
+              Majorations : +25 % de 20 h à 23 h · +50 % de 23 h à 6 h ·
+              +25 % de 6 h à 8 h · +25 % en cas d’urgence non planifiable.
+            </p>
+          </section>
 
           <div
             class="cta"
