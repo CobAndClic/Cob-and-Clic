@@ -136,38 +136,119 @@
   urgentChk.addEventListener('change', compute);
 })();
 
-/* ====== FORMULAIRE STATIQUE : prépare un e-mail ====== */
-function handleContact(e) {
-  e.preventDefault();
-  const form = e.target;
-  const data = new FormData(form);
-  const to = form.dataset.contactEmail || 'contact@cobandclic.fr';
+/* ====== FORMULAIRE DE CONTACT : envoi direct vers Cob & Clic ====== */
+(function () {
+  const form = document.getElementById('contact-request-form');
+  if (!form) return;
 
-  const plannerDate = document.getElementById('planner_date')?.value || '';
-  const plannerTime = document.getElementById('planner_time')?.value || '';
-  const plannerRate = document.getElementById('planner_rate')?.textContent || '';
-  const plannerNote = document.getElementById('planner_note')?.textContent || '';
+  const endpoint = form.dataset.formsubmitEndpoint;
+  const submitButton = document.getElementById('contact_submit');
+  const statusElement = document.getElementById('contact-form-status');
+  const subjectInput = document.getElementById('contact_subject');
+  const slotInput = document.getElementById('contact_planner_slot');
+  const rateInput = document.getElementById('contact_planner_rate');
+  const noteInput = document.getElementById('contact_planner_note');
 
-  const subject = `Demande Cob & Clic - ${data.get('service_type') || 'Intervention'}`;
-  const body = [
-    'Bonjour Cob & Clic,',
-    '',
-    'Je souhaite vous contacter pour la demande suivante :',
-    '',
-    `Nom : ${data.get('customer_name') || ''}`,
-    `Email : ${data.get('customer_email') || ''}`,
-    `Téléphone : ${data.get('customer_phone') || ''}`,
-    `Profil : ${data.get('customer_profile') || ''}`,
-    `Besoin : ${data.get('service_type') || ''}`,
-    '',
-    plannerDate && plannerTime ? `Créneau souhaité : ${plannerDate} à ${plannerTime}` : '',
-    plannerRate ? `Estimation : ${plannerRate} (${plannerNote})` : '',
-    '',
-    'Message :',
-    data.get('customer_message') || '',
-    '',
-    'Cordialement,'
-  ].filter(Boolean).join('\n');
+  function setStatus(message, type) {
+    statusElement.textContent = message;
+    statusElement.className = `form-status is-visible ${type}`;
+    statusElement.focus({ preventScroll: true });
+  }
 
-  window.location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-}
+  function updatePlannerFields() {
+    const plannerDate = document.getElementById('planner_date')?.value || '';
+    const plannerTime = document.getElementById('planner_time')?.value || '';
+    const plannerRate = document.getElementById('planner_rate')?.textContent?.trim() || '';
+    const plannerNote = document.getElementById('planner_note')?.textContent?.trim() || '';
+
+    slotInput.value =
+      plannerDate && plannerTime
+        ? `${plannerDate} à ${plannerTime}`
+        : 'Non renseigné';
+
+    rateInput.value =
+      plannerRate && plannerRate !== '-'
+        ? plannerRate
+        : 'Non renseigné';
+
+    noteInput.value =
+      plannerNote && plannerNote !== '-'
+        ? plannerNote
+        : 'Non renseigné';
+  }
+
+  const query = new URLSearchParams(window.location.search);
+  if (query.get('envoi') === 'ok') {
+    setStatus(
+      'Votre demande a bien été envoyée à Cob & Clic. Vous recevrez une réponse dès que possible.',
+      'success'
+    );
+
+    query.delete('envoi');
+    const cleanQuery = query.toString();
+    const cleanUrl =
+      window.location.pathname +
+      (cleanQuery ? `?${cleanQuery}` : '') +
+      window.location.hash;
+
+    window.history.replaceState({}, '', cleanUrl);
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    if (!form.reportValidity()) return;
+
+    const honeyPot = form.querySelector('[name="_honey"]');
+    if (honeyPot?.value) return;
+
+    updatePlannerFields();
+
+    const selectedService =
+      document.getElementById('service_type')?.value || 'Intervention';
+    subjectInput.value = `Demande Cob & Clic – ${selectedService}`;
+
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Envoi en cours…';
+    setStatus('Envoi de votre demande en cours…', 'pending');
+
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json'
+        },
+        body: new FormData(form)
+      });
+
+      let responseData = {};
+      try {
+        responseData = await response.json();
+      } catch (_) {
+        responseData = {};
+      }
+
+      if (!response.ok || responseData.success === false) {
+        throw new Error(
+          responseData.message || 'Le service de formulaire a refusé la demande.'
+        );
+      }
+
+      form.reset();
+      setStatus(
+        'Votre demande a bien été envoyée à Cob & Clic. Vous recevrez une réponse dès que possible.',
+        'success'
+      );
+    } catch (error) {
+      console.error('Échec de l’envoi du formulaire :', error);
+      setStatus(
+        'L’envoi automatique n’a pas abouti. Réessayez dans quelques instants, écrivez à contact@cobandclic.fr ou appelez le 07 81 02 51 18.',
+        'error'
+      );
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = originalButtonText;
+    }
+  });
+})();

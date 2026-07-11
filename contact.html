@@ -253,25 +253,72 @@
       <div class="divider"></div>
 
       <section aria-labelledby="contact-form">
-        <h2 id="contact-form">Préparer une demande par e-mail</h2>
+        <h2 id="contact-form">Envoyer une demande</h2>
 
         <p>
-          Remplissez les informations ci-dessous. Votre messagerie s’ouvrira
-          ensuite avec votre demande déjà préparée.
+          Remplissez les informations ci-dessous puis cliquez sur
+          <strong>Envoyer ma demande</strong>. Le message sera transmis
+          directement à <strong>contact@cobandclic.fr</strong>, sans ouvrir
+          votre messagerie.
         </p>
 
         <form
-          onsubmit="handleContact(event)"
+          id="contact-request-form"
           class="split contact-form"
-          data-contact-email="contact@cobandclic.fr"
+          action="https://formsubmit.co/contact@cobandclic.fr"
+          method="POST"
+          data-formsubmit-endpoint="https://formsubmit.co/ajax/contact@cobandclic.fr"
         >
+          <input
+            type="hidden"
+            name="_subject"
+            id="contact_subject"
+            value="Nouvelle demande depuis cobandclic.fr"
+          />
+          <input type="hidden" name="_template" value="table" />
+          <input
+            type="hidden"
+            name="_next"
+            value="https://www.cobandclic.fr/contact.html?envoi=ok#contact-form"
+          />
+          <input
+            type="hidden"
+            name="Créneau souhaité"
+            id="contact_planner_slot"
+            value="Non renseigné"
+          />
+          <input
+            type="hidden"
+            name="Tarif estimé"
+            id="contact_planner_rate"
+            value="Non renseigné"
+          />
+          <input
+            type="hidden"
+            name="Détail du tarif"
+            id="contact_planner_note"
+            value="Non renseigné"
+          />
+
+          <div class="form-honeypot" aria-hidden="true">
+            <label for="contact_company">Ne pas remplir ce champ</label>
+            <input
+              type="text"
+              id="contact_company"
+              name="_honey"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+
           <label for="customer_name">
             Nom<br />
             <input
               type="text"
               id="customer_name"
-              name="customer_name"
+              name="Nom"
               autocomplete="name"
+              maxlength="100"
               required
             />
           </label>
@@ -281,8 +328,9 @@
             <input
               type="email"
               id="customer_email"
-              name="customer_email"
+              name="email"
               autocomplete="email"
+              maxlength="160"
               required
             />
           </label>
@@ -292,9 +340,10 @@
             <input
               type="tel"
               id="customer_phone"
-              name="customer_phone"
+              name="Téléphone"
               autocomplete="tel"
               inputmode="tel"
+              maxlength="30"
               required
             />
           </label>
@@ -303,7 +352,7 @@
             Vous êtes<br />
             <select
               id="customer_profile"
-              name="customer_profile"
+              name="Profil"
               required
             >
               <option value="Particulier">Particulier</option>
@@ -318,7 +367,7 @@
             Besoin principal<br />
             <select
               id="service_type"
-              name="service_type"
+              name="Besoin"
               required
             >
               <option value="Dépannage informatique à domicile">
@@ -346,8 +395,9 @@
             Votre message<br />
             <textarea
               id="customer_message"
-              name="customer_message"
+              name="Message"
               rows="8"
+              maxlength="5000"
               required
               placeholder="Décrivez le problème avec vos mots, le matériel concerné, votre commune et vos disponibilités."
             ></textarea>
@@ -357,31 +407,43 @@
             class="cta"
             style="grid-column:1 / -1"
           >
-            <button class="btn btn-primary" type="submit">
-              Préparer ma demande
+            <button
+              class="btn btn-primary"
+              id="contact_submit"
+              type="submit"
+            >
+              Envoyer ma demande
             </button>
 
             <a
               class="btn btn-ghost"
-              href="mailto:contact@cobandclic.fr"
+              href="tel:+33781025118"
             >
-              Écrire directement
+              Appeler directement
             </a>
           </div>
+
+          <div
+            id="contact-form-status"
+            class="form-status"
+            role="status"
+            aria-live="polite"
+            tabindex="-1"
+          ></div>
 
           <p
             class="notice"
             style="grid-column:1 / -1;margin-top:10px;text-align:center"
           >
-            Aucune donnée n’est enregistrée sur ce site. Le formulaire prépare
-            uniquement un e-mail dans votre messagerie.
+            Les informations saisies servent uniquement à répondre à votre
+            demande. Elles ne sont pas enregistrées dans le site Cob & Clic.
           </p>
 
           <p
             class="notice"
             style="grid-column:1 / -1;margin-top:10px;text-align:center"
           >
-            Si votre messagerie ne s’ouvre pas, écrivez directement à
+            En cas de difficulté, écrivez à
             <a href="mailto:contact@cobandclic.fr">
               contact@cobandclic.fr
             </a>
