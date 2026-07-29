@@ -3,8 +3,18 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tarifs – Dépannage informatique à domicile & sites web | Cob & Clic</title>
-  <meta name="description" content="Tarifs Cob & Clic : dépannage informatique à domicile à l’heure, assistance sur site et création de sites web au forfait sur devis." />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQD1PKN8N9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-YQD1PKN8N9');
+  </script>
+
+  <title>Tarifs – Dépannage à domicile, à distance & sites web | Cob & Clic</title>
+  <meta name="description" content="Tarifs Cob & Clic : dépannage informatique à domicile, assistance à distance avec AnyDesk à 30 € la session de 30 minutes maximum et création de sites web au forfait." />
   <meta name="robots" content="index, follow" />
   <link rel="stylesheet" href="assets/base.css" />
   <link rel="icon" href="favicon.ico" />
@@ -28,9 +38,9 @@
 
     <nav class="nav" id="site-nav" aria-label="Navigation principale">
       <a href="/">Accueil</a>
-      <a href="particuliers.html">Particuliers</a>
-      <a href="professionnels.html">Professionnels</a>
-      <a href="collectivites.html">Collectivités</a>
+      <a href="particuliers.html">Particulier</a>
+      <a href="professionnels.html">Professionnel</a>
+      <a href="collectivites.html">Collectivité</a>
       <a href="formations.html">Accompagnement</a>
       <a href="tarifs.html">Tarifs</a>
       <a class="btn" href="contact.html">Demander une intervention</a>
@@ -42,20 +52,63 @@
   <section class="section">
     <div class="container">
       <h1>Tarifs</h1>
-      <p class="lead">Des tarifs simples pour les interventions, et des devis au forfait pour les sites web.</p>
+      <p class="lead">Des tarifs clairs pour les interventions à domicile ou à distance, avec une estimation immédiate dans le formulaire, et des devis au forfait pour les sites web.</p>
 
       <div class="cards two">
         <div class="card">
-          <h3>Dépannage & assistance à domicile</h3>
-          <p>Particuliers : <strong>70 € / h TTC</strong><br/>Professionnels / collectivités : <strong>90 € / h HT</strong></p>
-          <p class="notice">Majoration : +25% 20h–23h · +50% 23h–06h · +25% 06h–08h · +25% en cas d’urgence si non regroupable.</p>
-          <p class="micro-notice">Interventions possibles de jour comme de nuit, selon disponibilité. Les demandes de nuit sont confirmées au cas par cas.</p>
-          <p class="notice">Avant intervention, un court échange permet de qualifier le besoin et d’éviter un déplacement inutile.</p>
+          <h3>Dépannage & assistance</h3>
+          <p>Particuliers : <strong>60 € / h TTC</strong><br/>Professionnels / collectivités : <strong>90 € / h HT</strong></p>
+
+          <ul class="pricing-list" aria-label="Majorations tarifaires">
+            <li><span>De 19 h à 21 h</span><strong>+25 %</strong></li>
+            <li><span>De 21 h à 23 h</span><strong>+50 %</strong></li>
+            <li><span>De 23 h à 6 h</span><strong>+75 %</strong></li>
+            <li><span>De 6 h à 8 h</span><strong>+25 %</strong></li>
+            <li><span>Intervention le dimanche</span><strong>+25 %</strong></li>
+            <li><span>Intervention rapide dans la journée*</span><strong>+50 %</strong></li>
+          </ul>
+
+          <p class="notice"><strong>Les majorations se cumulent</strong> lorsqu’elles s’appliquent et sont calculées sur le tarif horaire de base.</p>
+          <p class="notice">* Demande pour le jour même, sous réserve de faisabilité. La disponibilité est confirmée après échange.</p>
+          <div class="cta" style="margin-top:16px">
+            <a class="btn btn-primary" href="contact.html?demande=intervention#contact-form">Connaître mon tarif et demander un créneau</a>
+          </div>
         </div>
 
-        <div class="card soft-card">
-          <h3>Pourquoi ce fonctionnement ?</h3>
-          <p>Avant d’intervenir, un court échange évite les déplacements inutiles et permet d’arriver avec la bonne méthode. La relation simple entre client et technicien fait gagner du temps à tout le monde.</p>
+        <div class="card remote-card" id="distance">
+          <span class="badge indigo">Avec AnyDesk</span>
+          <h3>Assistance informatique à distance</h3>
+          <p>Particuliers : <strong>30 € TTC la session</strong><br/>Professionnels / collectivités : <strong>30 € HT la session</strong></p>
+          <p class="notice"><strong>Une session dure 30 minutes maximum.</strong> Si une nouvelle session ou une intervention sur place est nécessaire, elle est proposée uniquement après votre accord.</p>
+
+          <ul class="pricing-list" aria-label="Majorations de l'assistance à distance">
+            <li><span>De 19 h à 21 h</span><strong>+25 %</strong></li>
+            <li><span>De 21 h à 23 h</span><strong>+50 %</strong></li>
+            <li><span>De 23 h à 6 h</span><strong>+75 %</strong></li>
+            <li><span>De 6 h à 8 h</span><strong>+25 %</strong></li>
+            <li><span>Intervention le dimanche</span><strong>+25 %</strong></li>
+            <li><span>Intervention rapide dans la journée*</span><strong>+50 %</strong></li>
+          </ul>
+
+          <p class="notice"><strong>Les majorations sont cumulables</strong> et calculées sur le tarif de base de 30 €.</p>
+          <p class="notice">* Demande pour le jour même, sous réserve de faisabilité et de confirmation.</p>
+          <div class="cta" style="margin-top:16px">
+            <a class="btn btn-primary" href="contact.html?demande=distance#contact-form">Estimer et demander une session</a>
+            <a class="btn btn-ghost" href="assistance-distance.html">Comment utiliser AnyDesk ?</a>
+          </div>
+        </div>
+
+        <div class="card soft-card availability-card">
+          <h3>Des créneaux adaptés à votre quotidien</h3>
+          <p><strong>Vous travaillez ou êtes occupé en journée ?</strong></p>
+          <p>Cob & Clic propose principalement des rendez-vous en soirée et le week-end, lorsque vous avez davantage de temps pour résoudre un problème, prendre en main un appareil ou apprendre à mieux l’utiliser.</p>
+          <p>J’exerce au quotidien dans le support informatique et applicatif en entreprise, et je mets cette expérience professionnelle à votre service en dehors des horaires classiques.</p>
+          <ol class="steps">
+            <li>Vous renseignez votre besoin, la date et l’heure souhaitées.</li>
+            <li>Le formulaire affiche une estimation adaptée au mode d’intervention choisi.</li>
+            <li>Je vous recontacte pour confirmer le créneau et le tarif avant l’intervention.</li>
+          </ol>
+          <p class="micro-notice">Le créneau sélectionné est une préférence, pas une réservation automatique.</p>
         </div>
 
         <div class="card" id="sites">

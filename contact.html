@@ -3,11 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-YQD1PKN8N9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
 
-  <title>Contact et dépannage informatique à domicile | Cob & Clic Rouen</title>
+    gtag('config', 'G-YQD1PKN8N9');
+  </script>
+
+
+  <title>Contact – Dépannage informatique à domicile ou à distance | Cob & Clic</title>
   <meta
     name="description"
-    content="Contactez Cob & Clic pour un dépannage informatique à domicile, un accompagnement numérique ou un projet de site web à Rouen, Grand-Quevilly et alentours."
+    content="Contactez Cob & Clic pour un dépannage informatique à domicile autour de Rouen, une assistance à distance avec AnyDesk, un accompagnement numérique ou un projet de site web."
   />
   <meta name="robots" content="index, follow" />
 
@@ -17,11 +27,11 @@
 
   <meta
     property="og:title"
-    content="Contact Cob & Clic – Dépannage informatique autour de Rouen"
+    content="Contact Cob & Clic – Dépannage informatique à domicile ou à distance"
   />
   <meta
     property="og:description"
-    content="Demandez une intervention informatique à domicile, un accompagnement numérique ou un devis pour la création d’un site web."
+    content="Demandez une intervention informatique à domicile, une assistance à distance avec AnyDesk, un accompagnement numérique ou un devis pour la création d’un site web."
   />
   <meta
     property="og:image"
@@ -102,14 +112,14 @@
 
       <p class="lead">
         Expliquez votre besoin : dépannage informatique à domicile,
-        accompagnement numérique, intervention dans vos locaux ou création
-        d’un site web. Cob & Clic intervient à Rouen, Grand-Quevilly et dans
-        les communes alentour.
+        assistance à distance avec AnyDesk, accompagnement numérique,
+        intervention dans vos locaux ou création d’un site web. Cob & Clic
+        intervient autour de Rouen et peut également vous accompagner à distance.
       </p>
 
       <p class="micro-notice">
-        Intervention possible de jour comme de nuit, selon disponibilité.
-        Les créneaux de nuit sont confirmés uniquement après échange.
+        <strong>Vous n’êtes pas disponible aux horaires de bureau ?</strong>
+        Cob & Clic propose principalement des rendez-vous en soirée et le week-end, pour vous dépanner ou vous accompagner au moment où vous avez réellement le temps. J’exerce au quotidien dans le support informatique et applicatif en entreprise, et je mets cette expérience professionnelle à votre service sur ces créneaux.
       </p>
 
       <section aria-labelledby="contact-direct">
@@ -120,7 +130,8 @@
             <h3>Par téléphone</h3>
             <p>
               Pour expliquer rapidement votre problème ou vérifier les
-              disponibilités.
+              disponibilités. Si je ne peux pas répondre immédiatement,
+              laissez un message ou utilisez le formulaire : je vous recontacte dès que possible.
             </p>
             <p>
               <a class="btn btn-primary" href="tel:+33781025118">
@@ -148,10 +159,34 @@
           <div class="card">
             <h3>Zone d’intervention</h3>
             <p>
-              Rouen, Grand-Quevilly et communes proches, généralement dans un
-              rayon d’environ 25 km, selon disponibilité.
+              Grand-Quevilly, Rouen et communes situées sur l’axe jusqu’à Tôtes,
+              ainsi que Tourville-la-Rivière. Les déplacements sont organisés selon les demandes et mes disponibilités.
             </p>
           </div>
+        </div>
+      </section>
+
+      <section
+        class="card remote-card"
+        id="assistance-distance"
+        aria-labelledby="distance-title"
+        style="margin-bottom:18px"
+      >
+        <span class="badge indigo">30 minutes maximum</span>
+        <h2 id="distance-title">Assistance à distance avec AnyDesk</h2>
+        <p>
+          Pour un blocage logiciel ou un réglage simple, une session peut être réalisée
+          directement sur votre ordinateur, avec votre autorisation et sans déplacement.
+          Tarif de base : <strong>30 € TTC pour un particulier</strong> ou
+          <strong>30 € HT pour un professionnel / une collectivité</strong>.
+        </p>
+        <div class="cta">
+          <a class="btn btn-primary" href="contact.html?demande=distance#contact-form">
+            Choisir l’assistance à distance
+          </a>
+          <a class="btn btn-ghost" href="assistance-distance.html">
+            Voir le tutoriel AnyDesk
+          </a>
         </div>
       </section>
 
@@ -187,8 +222,8 @@
 
         <p>
           Sélectionnez le type de demande puis décrivez votre besoin.
-          Un créneau ne sera transmis que si vous choisissez
-          <strong>Demande d’intervention / prise de rendez-vous</strong>.
+          En choisissant <strong>Demande d’intervention / prise de rendez-vous</strong>,
+          vous pourrez indiquer un créneau souhaité et obtenir immédiatement une estimation selon le service, votre profil, la date, l’heure, le dimanche et l’option d’intervention rapide dans la journée.
         </p>
 
         <form
@@ -305,6 +340,9 @@
               <option value="Dépannage informatique à domicile">
                 Dépannage informatique à domicile
               </option>
+              <option value="Assistance informatique à distance (AnyDesk)">
+                Assistance informatique à distance (AnyDesk)
+              </option>
               <option value="Accompagnement numérique">
                 Accompagnement numérique
               </option>
@@ -318,6 +356,7 @@
                 Autre demande
               </option>
             </select>
+            <span class="field-help" id="service_type_help">Le tarif sera calculé selon le service choisi.</span>
           </label>
 
           <label
@@ -343,31 +382,30 @@
             hidden
           >
             <h3 id="planner-title">
-              Demande d’intervention / prise de rendez-vous
+              Estimer le tarif et proposer un créneau
             </h3>
 
             <p class="notice">
-              Le créneau choisi correspond à une préférence et non à une
-              réservation définitive. Cob & Clic vous recontactera pour le
-              confirmer.
+              Le créneau choisi correspond à une préférence.
+              Je vous recontacte rapidement pour confirmer le rendez-vous selon mes disponibilités.
             </p>
 
             <div class="grid">
               <label for="planner_profile">
-                Tarif applicable<br />
+                Profil tarifaire<br />
                 <select
                   id="planner_profile"
                   name="Profil tarifaire"
                   disabled
                 >
                   <option value="particulier">
-                    Particulier – 70 € / h TTC
+                    Particulier
                   </option>
                   <option value="professionnel">
-                    Professionnel – 90 € / h HT
+                    Professionnel
                   </option>
                   <option value="collectivite">
-                    Collectivité – 90 € / h HT
+                    Collectivité
                   </option>
                 </select>
               </label>
@@ -392,14 +430,15 @@
               </label>
 
               <label class="checkbox-label" for="planner_urgent">
-                Intervention urgente<br />
+                Intervention rapide dans la journée (+50 %)<br />
                 <input
                   type="checkbox"
                   id="planner_urgent"
-                  name="Urgence"
+                  name="Intervention rapide dans la journée"
                   value="Oui"
                   disabled
                 />
+                <span class="field-help" id="planner_urgent_help">Cette option se coche automatiquement pour une demande le jour même, sous réserve de faisabilité.</span>
               </label>
             </div>
 
@@ -426,13 +465,19 @@
             />
 
             <div class="result" aria-live="polite">
+              <div class="rate-label">Tarif estimé</div>
               <div class="rate" id="planner_rate">-</div>
-              <div class="notice" id="planner_note">-</div>
+              <div class="rate-detail" id="planner_note">Choisissez une date et une heure.</div>
             </div>
 
             <p class="notice">
-              Majorations : +25 % de 20 h à 23 h · +50 % de 23 h à 6 h ·
-              +25 % de 6 h à 8 h · +25 % en cas d’urgence non planifiable.
+              Majorations cumulables : +25 % de 19 h à 21 h · +50 % de 21 h à 23 h ·
+              +75 % de 23 h à 6 h · +25 % de 6 h à 8 h · +25 % le dimanche ·
+              +50 % pour une intervention rapide dans la journée, si possible.
+              Pour une assistance à distance, ces majorations sont calculées sur la base de 30 € par session.
+            </p>
+            <p class="notice">
+              Cette estimation ne confirme pas le rendez-vous. Le créneau et le tarif sont validés avec vous avant l’intervention.
             </p>
           </section>
 

@@ -32,7 +32,8 @@
   const form = document.getElementById('contact-request-form');
   const root = document.getElementById('planner');
   const requestType = document.getElementById('request_type');
-  if (!form || !root || !requestType) return;
+  const serviceType = document.getElementById('service_type');
+  if (!form || !root || !requestType || !serviceType) return;
 
   const profileSel = document.getElementById('planner_profile');
   const customerProfile = document.getElementById('customer_profile');
@@ -41,12 +42,15 @@
   const urgentChk = document.getElementById('planner_urgent');
   const rateEl = document.getElementById('planner_rate');
   const noteEl = document.getElementById('planner_note');
+  const urgentHelpEl = document.getElementById('planner_urgent_help');
+  const serviceHelpEl = document.getElementById('service_type_help');
 
   const slotInput = document.getElementById('contact_planner_slot');
   const rateInput = document.getElementById('contact_planner_rate');
   const noteInput = document.getElementById('contact_planner_note');
 
   const appointmentValue = 'Demande d’intervention / prise de rendez-vous';
+  const remoteServiceValue = 'Assistance informatique à distance (AnyDesk)';
   const plannerControls = [
     profileSel,
     dateInp,
@@ -58,6 +62,10 @@
   ];
 
   const pad = (n) => String(n).padStart(2, '0');
+  const priceFormatter = new Intl.NumberFormat('fr-FR', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  });
 
   const localDateStr = (date = new Date()) => {
     const year = date.getFullYear();
@@ -132,6 +140,49 @@
     profileSel.value = mapping[customerProfile.value] || 'particulier';
   }
 
+  function updateServicePresentation() {
+    const isRemote = serviceType.value === remoteServiceValue;
+
+    if (profileSel.options.length >= 3) {
+      profileSel.options[0].textContent = isRemote
+        ? 'Particulier – 30 € TTC / session'
+        : 'Particulier – 60 € / h TTC';
+      profileSel.options[1].textContent = isRemote
+        ? 'Professionnel – 30 € HT / session'
+        : 'Professionnel – 90 € / h HT';
+      profileSel.options[2].textContent = isRemote
+        ? 'Collectivité – 30 € HT / session'
+        : 'Collectivité – 90 € / h HT';
+    }
+
+    if (serviceHelpEl) {
+      serviceHelpEl.textContent = isRemote
+        ? 'Session à distance de 30 minutes maximum avec AnyDesk. Les majorations restent applicables sur la base de 30 €.'
+        : 'Intervention à domicile ou sur site, facturée à l’heure selon votre profil.';
+    }
+  }
+
+  function updateUrgentAvailability(plannerEnabled = !root.hidden, autoCheck = false) {
+    const isToday = dateInp.value === localDateStr();
+    const canRequestSameDay = plannerEnabled && isToday;
+
+    urgentChk.disabled = !canRequestSameDay;
+
+    if (canRequestSameDay) {
+      if (autoCheck) {
+        urgentChk.checked = true;
+      }
+    } else {
+      urgentChk.checked = false;
+    }
+
+    if (urgentHelpEl) {
+      urgentHelpEl.textContent = isToday
+        ? 'Demande pour le jour même : option cochée automatiquement, sous réserve de faisabilité et de confirmation.'
+        : 'Cette option est disponible uniquement lorsque la date choisie est aujourd’hui.';
+    }
+  }
+
   function compute() {
     const dateValue = dateInp.value;
     const timeValue = timeSel.value;
@@ -146,46 +197,46 @@
     }
 
     const isParticulier = profileSel.value === 'particulier';
-    const baseRate = isParticulier ? 70 : 90;
+    const isRemote = serviceType.value === remoteServiceValue;
+    const baseRate = isRemote ? 30 : (isParticulier ? 60 : 90);
     const taxLabel = isParticulier ? 'TTC' : 'HT';
     const hour = Number(timeValue.split(':')[0]);
+    const selectedDate = new Date(`${dateValue}T12:00:00`);
+    const isSunday = selectedDate.getDay() === 0;
 
     let timeIncrease = 0;
+    let timeLabel = '';
 
-    if (hour >= 20 && hour < 23) {
+    if (hour >= 19 && hour < 21) {
       timeIncrease = 0.25;
-    } else if (hour >= 23 || hour < 6) {
+      timeLabel = '+25 % de 19 h à 21 h';
+    } else if (hour >= 21 && hour < 23) {
       timeIncrease = 0.50;
+      timeLabel = '+50 % de 21 h à 23 h';
+    } else if (hour >= 23 || hour < 6) {
+      timeIncrease = 0.75;
+      timeLabel = '+75 % de 23 h à 6 h';
     } else if (hour >= 6 && hour < 8) {
       timeIncrease = 0.25;
+      timeLabel = '+25 % de 6 h à 8 h';
     }
 
-    const urgentIncrease = urgentChk.checked ? 0.25 : 0;
-    const price = baseRate * (1 + timeIncrease + urgentIncrease);
+    const sundayIncrease = isSunday ? 0.25 : 0;
+    const urgentIncrease = urgentChk.checked ? 0.50 : 0;
+    const totalIncrease = timeIncrease + sundayIncrease + urgentIncrease;
+    const price = baseRate * (1 + totalIncrease);
 
     const notes = [];
 
-    if (timeIncrease === 0.25 && hour >= 20 && hour < 23) {
-      notes.push('+25 % soirée 20 h–23 h');
-    }
+    if (isRemote) notes.push('Session à distance de 30 minutes maximum');
+    if (timeLabel) notes.push(timeLabel);
+    if (sundayIncrease) notes.push('+25 % dimanche');
+    if (urgentIncrease) notes.push('+50 % intervention rapide dans la journée');
+    if (!notes.length) notes.push('Tarif standard, sans majoration');
 
-    if (timeIncrease === 0.50) {
-      notes.push('+50 % nuit 23 h–6 h');
-    }
-
-    if (timeIncrease === 0.25 && hour >= 6 && hour < 8) {
-      notes.push('+25 % matin 6 h–8 h');
-    }
-
-    if (urgentIncrease) {
-      notes.push('+25 % urgence');
-    }
-
-    if (!notes.length) {
-      notes.push('Créneau standard');
-    }
-
-    const rateText = `${price.toFixed(2)} € / h ${taxLabel}`;
+    const rateText = isRemote
+      ? `${priceFormatter.format(price)} € ${taxLabel} / session (30 min max)`
+      : `${priceFormatter.format(price)} € / h ${taxLabel}`;
     const noteText = notes.join(' · ');
 
     rateEl.textContent = rateText;
@@ -217,11 +268,14 @@
       }
 
       buildTimesForDate(dateInp.value);
+      updateServicePresentation();
+      updateUrgentAvailability(true, true);
       compute();
     } else {
       dateInp.required = false;
       timeSel.required = false;
       urgentChk.checked = false;
+      urgentChk.disabled = true;
       slotInput.value = '';
       rateInput.value = '';
       noteInput.value = '';
@@ -239,13 +293,28 @@
 
   dateInp.addEventListener('change', () => {
     buildTimesForDate(dateInp.value);
+    updateUrgentAvailability(true, true);
     compute();
   });
 
   timeSel.addEventListener('change', compute);
   profileSel.addEventListener('change', compute);
   urgentChk.addEventListener('change', compute);
+  serviceType.addEventListener('change', () => {
+    updateServicePresentation();
+    compute();
+  });
 
+  const initialQuery = new URLSearchParams(window.location.search);
+  if (initialQuery.get('demande') === 'intervention') {
+    requestType.value = appointmentValue;
+  }
+  if (initialQuery.get('demande') === 'distance') {
+    requestType.value = appointmentValue;
+    serviceType.value = remoteServiceValue;
+  }
+
+  updateServicePresentation();
   setPlannerEnabled(requestType.value === appointmentValue);
 })();
 
@@ -328,6 +397,7 @@
 
       form.reset();
       requestType.dispatchEvent(new Event('change'));
+      serviceType.dispatchEvent(new Event('change'));
 
       setStatus(
         'Votre demande a bien été envoyée à Cob & Clic. Vous recevrez une réponse dès que possible.',
