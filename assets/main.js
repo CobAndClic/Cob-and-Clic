@@ -43,6 +43,7 @@
   const rateEl = document.getElementById('planner_rate');
   const noteEl = document.getElementById('planner_note');
   const urgentHelpEl = document.getElementById('planner_urgent_help');
+  const urgentLabelEl = document.getElementById('planner_urgent_label');
   const serviceHelpEl = document.getElementById('service_type_help');
 
   const slotInput = document.getElementById('contact_planner_slot');
@@ -157,25 +158,58 @@
 
     if (serviceHelpEl) {
       serviceHelpEl.textContent = isRemote
-        ? 'Session à distance de 30 minutes maximum avec AnyDesk. Les majorations restent applicables sur la base de 30 €.'
+        ? 'Session à distance de 30 minutes maximum avec AnyDesk. Une grille de majorations spécifique est appliquée sur la base de 30 €.'
         : 'Intervention à domicile ou sur site, facturée à l’heure selon votre profil.';
     }
   }
 
-  function updateUrgentAvailability(plannerEnabled = !root.hidden, autoCheck = false) {
-    const isToday = dateInp.value === localDateStr();
-    const canRequestSameDay = plannerEnabled && isToday;
+  function getSelectedDateTime() {
+    if (!dateInp.value || !timeSel.value) return null;
+    const selected = new Date(`${dateInp.value}T${timeSel.value}:00`);
+    return Number.isNaN(selected.getTime()) ? null : selected;
+  }
 
+  function updateUrgentAvailability(plannerEnabled = !root.hidden, autoCheck = false) {
+    const isRemote = serviceType.value === remoteServiceValue;
+    const isToday = dateInp.value === localDateStr();
+    const selectedDateTime = getSelectedDateTime();
+    const now = new Date();
+    const sixHoursLater = new Date(now.getTime() + 6 * 60 * 60 * 1000);
+    const isWithinSixHours = Boolean(
+      selectedDateTime &&
+      selectedDateTime.getTime() >= now.getTime() &&
+      selectedDateTime.getTime() <= sixHoursLater.getTime()
+    );
+
+    if (isRemote) {
+      urgentChk.checked = plannerEnabled && isWithinSixHours;
+      urgentChk.disabled = true;
+
+      if (urgentLabelEl) {
+        urgentLabelEl.textContent = 'Intervention à distance demandée sous 6 heures (+50 %)';
+      }
+      if (urgentHelpEl) {
+        urgentHelpEl.textContent = selectedDateTime
+          ? (isWithinSixHours
+              ? 'Majoration appliquée automatiquement : le créneau choisi se situe dans les 6 heures.'
+              : 'Aucune majoration d’urgence : le créneau choisi se situe au-delà des 6 heures.')
+          : 'Choisissez une date et une heure pour vérifier automatiquement le délai de 6 heures.';
+      }
+      return;
+    }
+
+    const canRequestSameDay = plannerEnabled && isToday;
     urgentChk.disabled = !canRequestSameDay;
 
     if (canRequestSameDay) {
-      if (autoCheck) {
-        urgentChk.checked = true;
-      }
+      if (autoCheck) urgentChk.checked = true;
     } else {
       urgentChk.checked = false;
     }
 
+    if (urgentLabelEl) {
+      urgentLabelEl.textContent = 'Intervention rapide dans la journée (+50 %)';
+    }
     if (urgentHelpEl) {
       urgentHelpEl.textContent = isToday
         ? 'Demande pour le jour même : option cochée automatiquement, sous réserve de faisabilité et de confirmation.'
@@ -207,7 +241,15 @@
     let timeIncrease = 0;
     let timeLabel = '';
 
-    if (hour >= 19 && hour < 21) {
+    if (isRemote) {
+      if (hour >= 21) {
+        timeIncrease = 0.25;
+        timeLabel = '+25 % de 21 h à minuit';
+      } else if (hour < 8) {
+        timeIncrease = 0.50;
+        timeLabel = '+50 % de minuit à 8 h';
+      }
+    } else if (hour >= 19 && hour < 21) {
       timeIncrease = 0.25;
       timeLabel = '+25 % de 19 h à 21 h';
     } else if (hour >= 21 && hour < 23) {
@@ -231,7 +273,7 @@
     if (isRemote) notes.push('Session à distance de 30 minutes maximum');
     if (timeLabel) notes.push(timeLabel);
     if (sundayIncrease) notes.push('+25 % dimanche');
-    if (urgentIncrease) notes.push('+50 % intervention rapide dans la journée');
+    if (urgentIncrease) notes.push(isRemote ? '+50 % intervention demandée sous 6 heures' : '+50 % intervention rapide dans la journée');
     if (!notes.length) notes.push('Tarif standard, sans majoration');
 
     const rateText = isRemote
@@ -297,11 +339,15 @@
     compute();
   });
 
-  timeSel.addEventListener('change', compute);
+  timeSel.addEventListener('change', () => {
+    updateUrgentAvailability(true);
+    compute();
+  });
   profileSel.addEventListener('change', compute);
   urgentChk.addEventListener('change', compute);
   serviceType.addEventListener('change', () => {
     updateServicePresentation();
+    updateUrgentAvailability(true, true);
     compute();
   });
 

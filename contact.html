@@ -119,7 +119,7 @@
 
       <p class="micro-notice">
         <strong>Vous n’êtes pas disponible aux horaires de bureau ?</strong>
-        Cob & Clic propose principalement des rendez-vous en soirée et le week-end, pour vous dépanner ou vous accompagner au moment où vous avez réellement le temps. J’exerce au quotidien dans le support informatique et applicatif en entreprise, et je mets cette expérience professionnelle à votre service sur ces créneaux.
+        Cob & Clic propose principalement des rendez-vous en soirée et le week-end, pour vous dépanner ou vous accompagner au moment où vous avez réellement le temps. J’exerce au quotidien dans le support informatique et applicatif en entreprise. Je suis diplômé en administration des systèmes, réseaux et cybersécurité, avec une formation au développement web sécurisé, mais je vous explique toujours les choses avec des mots simples.
       </p>
 
       <section aria-labelledby="contact-direct">
@@ -223,7 +223,7 @@
         <p>
           Sélectionnez le type de demande puis décrivez votre besoin.
           En choisissant <strong>Demande d’intervention / prise de rendez-vous</strong>,
-          vous pourrez indiquer un créneau souhaité et obtenir immédiatement une estimation selon le service, votre profil, la date, l’heure, le dimanche et l’option d’intervention rapide dans la journée.
+          vous pourrez indiquer un créneau souhaité et obtenir immédiatement une estimation selon le service, votre profil, la date, l’heure et le dimanche. Le calculateur applique aussi automatiquement la majoration d’urgence adaptée : jour même à domicile ou créneau situé dans les 6 heures à distance.
         </p>
 
         <form
@@ -430,15 +430,15 @@
               </label>
 
               <label class="checkbox-label" for="planner_urgent">
-                Intervention rapide dans la journée (+50 %)<br />
+                <span id="planner_urgent_label">Intervention rapide dans la journée (+50 %)</span><br />
                 <input
                   type="checkbox"
                   id="planner_urgent"
-                  name="Intervention rapide dans la journée"
+                  name="Intervention rapide"
                   value="Oui"
                   disabled
                 />
-                <span class="field-help" id="planner_urgent_help">Cette option se coche automatiquement pour une demande le jour même, sous réserve de faisabilité.</span>
+                <span class="field-help" id="planner_urgent_help">À domicile, cette option se coche automatiquement lorsque la date choisie est aujourd’hui.</span>
               </label>
             </div>
 
@@ -470,11 +470,12 @@
               <div class="rate-detail" id="planner_note">Choisissez une date et une heure.</div>
             </div>
 
-            <p class="notice">
-              Majorations cumulables : +25 % de 19 h à 21 h · +50 % de 21 h à 23 h ·
+            <p class="notice" id="planner_pricing_rules">
+              <strong>À domicile / sur site :</strong> +25 % de 19 h à 21 h · +50 % de 21 h à 23 h ·
               +75 % de 23 h à 6 h · +25 % de 6 h à 8 h · +25 % le dimanche ·
-              +50 % pour une intervention rapide dans la journée, si possible.
-              Pour une assistance à distance, ces majorations sont calculées sur la base de 30 € par session.
+              +50 % pour une intervention rapide dans la journée, si possible.<br />
+              <strong>À distance :</strong> +25 % de 21 h à minuit · +50 % de minuit à 8 h ·
+              +25 % le dimanche · +50 % lorsque le créneau demandé se situe dans les 6 heures.
             </p>
             <p class="notice">
               Cette estimation ne confirme pas le rendez-vous. Le créneau et le tarif sont validés avec vous avant l’intervention.
