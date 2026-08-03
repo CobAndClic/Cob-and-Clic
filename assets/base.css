@@ -1085,33 +1085,43 @@ details > :last-child {
 }
 
 @media (max-width: 859px) {
-  /* Le nom et le menu restent bien lisibles au premier coup d’œil sur mobile. */
+  /* Bandeau volontairement plus haut : logo et menu restent évidents sur mobile. */
+  :root {
+    --header-height: 82px;
+  }
+
+  .site-header .wrap {
+    gap: 16px;
+  }
+
   .brand {
-    font-size: 1.18rem;
+    font-size: 1.25rem;
     font-weight: 900;
   }
 
   .brand img {
-    width: 48px;
-    height: 48px;
-    flex-basis: 48px;
+    width: 60px;
+    height: 60px;
+    flex-basis: 60px;
+    border-radius: 10px;
   }
 
   .brand small {
-    font-size: 0.74rem;
+    font-size: 0.78rem;
   }
 
   .nav-toggle {
-    width: 48px;
-    height: 48px;
-    flex-basis: 48px;
+    width: 56px;
+    height: 56px;
+    flex-basis: 56px;
     border-width: 2px;
+    border-radius: 14px;
   }
 
   .nav-toggle svg {
-    width: 26px;
-    height: 26px;
-    stroke-width: 2.75;
+    width: 30px;
+    height: 30px;
+    stroke-width: 3;
   }
 }
 
