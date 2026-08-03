@@ -1,15 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.cobandclic.fr/</loc></url>
-  <url><loc>https://www.cobandclic.fr/particuliers.html</loc></url>
-  <url><loc>https://www.cobandclic.fr/professionnels.html</loc></url>
-  <url><loc>https://www.cobandclic.fr/collectivites.html</loc></url>
-  <url><loc>https://www.cobandclic.fr/formations.html</loc></url>
-  <url><loc>https://www.cobandclic.fr/tarifs.html</loc></url>
-  <url><loc>https://www.cobandclic.fr/assistance-distance.html</loc></url>
-  <url><loc>https://www.cobandclic.fr/contact.html</loc></url>
-<<<<<<< HEAD
+  <url>
+    <loc>https://www.cobandclic.fr/</loc>
+  </url>
+  <url>
+    <loc>https://www.cobandclic.fr/particuliers.html</loc>
+  </url>
+  <url>
+    <loc>https://www.cobandclic.fr/professionnels.html</loc>
+  </url>
+  <url>
+    <loc>https://www.cobandclic.fr/collectivites.html</loc>
+  </url>
+  <url>
+    <loc>https://www.cobandclic.fr/formations.html</loc>
+  </url>
+  <url>
+    <loc>https://www.cobandclic.fr/tarifs.html</loc>
+  </url>
+  <url>
+    <loc>https://www.cobandclic.fr/assistance-distance.html</loc>
+  </url>
+  <url>
+    <loc>https://www.cobandclic.fr/contact.html</loc>
+  </url>
 </urlset>
-=======
-</urlset>
->>>>>>> d6d866d (Mobile)
