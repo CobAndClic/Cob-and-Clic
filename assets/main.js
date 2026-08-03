@@ -6,7 +6,9 @@
 
   function setOpen(open) {
     nav.classList.toggle('open', open);
+    document.body.classList.toggle('nav-open', open);
     btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    btn.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
   }
 
   function closeOnOutside(e) {
@@ -24,6 +26,29 @@
 
   nav.addEventListener('click', (e) => {
     if (e.target.tagName === 'A') setOpen(false);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      setOpen(false);
+      btn.focus();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 860) setOpen(false);
+  });
+})();
+
+/* ====== LIEN DE NAVIGATION ACTIF ====== */
+(function () {
+  const currentFile = window.location.pathname.split('/').pop() || 'index.html';
+
+  document.querySelectorAll('#site-nav a:not(.btn)').forEach((link) => {
+    const linkUrl = new URL(link.href, window.location.href);
+    const linkFile = linkUrl.pathname.split('/').pop() || 'index.html';
+
+    if (linkFile === currentFile) link.setAttribute('aria-current', 'page');
   });
 })();
 
@@ -169,7 +194,7 @@
     return Number.isNaN(selected.getTime()) ? null : selected;
   }
 
-  function updateUrgentAvailability(plannerEnabled = !root.hidden, autoCheck = false) {
+  function updateUrgentAvailability(plannerEnabled = !root.hidden) {
     const isRemote = serviceType.value === remoteServiceValue;
     const isToday = dateInp.value === localDateStr();
     const selectedDateTime = getSelectedDateTime();
@@ -199,20 +224,15 @@
     }
 
     const canRequestSameDay = plannerEnabled && isToday;
-    urgentChk.disabled = !canRequestSameDay;
-
-    if (canRequestSameDay) {
-      if (autoCheck) urgentChk.checked = true;
-    } else {
-      urgentChk.checked = false;
-    }
+    urgentChk.checked = canRequestSameDay;
+    urgentChk.disabled = true;
 
     if (urgentLabelEl) {
       urgentLabelEl.textContent = 'Intervention rapide dans la journée (+50 %)';
     }
     if (urgentHelpEl) {
       urgentHelpEl.textContent = isToday
-        ? 'Demande pour le jour même : option cochée automatiquement, sous réserve de faisabilité et de confirmation.'
+        ? 'Majoration appliquée automatiquement pour une demande le jour même, sous réserve de faisabilité et de confirmation.'
         : 'Cette option est disponible uniquement lorsque la date choisie est aujourd’hui.';
     }
   }
@@ -311,7 +331,7 @@
 
       buildTimesForDate(dateInp.value);
       updateServicePresentation();
-      updateUrgentAvailability(true, true);
+      updateUrgentAvailability(true);
       compute();
     } else {
       dateInp.required = false;
@@ -335,7 +355,7 @@
 
   dateInp.addEventListener('change', () => {
     buildTimesForDate(dateInp.value);
-    updateUrgentAvailability(true, true);
+    updateUrgentAvailability(true);
     compute();
   });
 
@@ -347,7 +367,7 @@
   urgentChk.addEventListener('change', compute);
   serviceType.addEventListener('change', () => {
     updateServicePresentation();
-    updateUrgentAvailability(true, true);
+    updateUrgentAvailability(true);
     compute();
   });
 
@@ -358,6 +378,10 @@
   if (initialQuery.get('demande') === 'distance') {
     requestType.value = appointmentValue;
     serviceType.value = remoteServiceValue;
+  }
+  if (initialQuery.get('demande') === 'site') {
+    requestType.value = 'Demande de devis – création de site web';
+    serviceType.value = 'Création de site web';
   }
 
   updateServicePresentation();
@@ -430,7 +454,7 @@
 
       try {
         responseData = await response.json();
-      } catch (_) {
+      } catch {
         responseData = {};
       }
 
