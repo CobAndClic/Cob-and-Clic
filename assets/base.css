@@ -180,20 +180,33 @@ ol:last-child {
   align-items: center;
   gap: 10px;
   color: var(--text);
+  font-size: 1.06rem;
+  font-weight: 800;
 }
 
-.brand-mark {
-  display: grid;
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
-  place-items: center;
-  border-radius: 12px;
-  background: var(--primary);
-  color: var(--accent);
-  font-size: 1.05rem;
-  font-weight: 900;
-  box-shadow: 0 8px 20px rgba(11, 27, 58, 0.16);
+.brand img {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border-radius: 8px;
+  object-fit: contain;
+}
+
+.brand div {
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.brand small {
+  display: block;
+  overflow: hidden;
+  max-width: 210px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-copy {
@@ -1071,6 +1084,37 @@ details > :last-child {
   }
 }
 
+@media (max-width: 859px) {
+  /* Le nom et le menu restent bien lisibles au premier coup d’œil sur mobile. */
+  .brand {
+    font-size: 1.18rem;
+    font-weight: 900;
+  }
+
+  .brand img {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+  }
+
+  .brand small {
+    font-size: 0.74rem;
+  }
+
+  .nav-toggle {
+    width: 48px;
+    height: 48px;
+    flex-basis: 48px;
+    border-width: 2px;
+  }
+
+  .nav-toggle svg {
+    width: 26px;
+    height: 26px;
+    stroke-width: 2.75;
+  }
+}
+
 @media (min-width: 860px) {
   body.nav-open {
     overflow: auto;
@@ -1152,13 +1196,13 @@ details > :last-child {
     font-size: 0.92rem;
   }
 
-  .brand-copy small {
-    max-width: 220px;
+  .brand small {
+    max-width: 240px;
   }
 }
 
 @media (max-width: 420px) {
-  .brand-copy small {
+  .brand small {
     display: none;
   }
 
