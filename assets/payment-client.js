@@ -59,9 +59,22 @@
       try { data = await response.json(); } catch (_) {}
       if (!response.ok) throw new Error(data.error || 'Ce lien n’est plus disponible.');
 
-      $('payment-greeting').textContent = `Bonjour ${data.clientName || ''}, retrouvez ci-dessous les informations confirmées avec Cob & Clic.`;
-      $('payment-amount').textContent = formatMoney(data.amount);
-      $('payment-reference').textContent = data.reference || '-';
+      const reference = String(data.reference || '');
+      const amountFormatted = formatMoney(data.amount);
+      const isInvoice = /^FAC-/i.test(reference);
+
+      if (isInvoice) {
+        $('payment-eyebrow').textContent = 'Facture à régler';
+        $('payment-title').textContent = `Facture ${reference} - montant restant dû`;
+        $('payment-greeting').textContent = `Bonjour ${data.clientName || ''}, votre intervention est terminée. Retrouvez ci-dessous les informations de la facture à régler.`;
+        $('payment-amount-label').textContent = 'Montant restant dû';
+        $('payment-provider-button').textContent = `Régler ${amountFormatted}`;
+      } else {
+        $('payment-greeting').textContent = `Bonjour ${data.clientName || ''}, retrouvez ci-dessous les informations confirmées avec Cob & Clic.`;
+      }
+
+      $('payment-amount').textContent = amountFormatted;
+      $('payment-reference').textContent = reference || '-';
       $('payment-client').textContent = data.clientName || '-';
       $('payment-service').textContent = data.service || '-';
       $('payment-description').textContent = data.description || '-';
