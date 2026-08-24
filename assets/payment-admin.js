@@ -163,28 +163,95 @@
     }
   }
 
+  function normalizeImportedLabel(label) {
+    return String(label || '')
+      .replace(/\\_/g, '_')
+      .replace(/[_]+/g, ' ')
+      .replace(/[*`#]/g, '')
+      .replace(/\s*\/\s*/g, ' / ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
   function parseImportedRequest(raw) {
     const text = String(raw || '').replace(/\r/g, '');
     const rows = {};
-    const labels = [
+    const canonicalLabels = [
       'Type de demande', 'Nom', 'email', 'Adresse e-mail', 'Téléphone', 'Ville / commune', 'Profil', 'Besoin', 'Message',
-      'Date souhaitée', 'Créneau souhaité', 'Tarif estimé', 'Détail du tarif'
+      'Profil tarifaire', 'Date souhaitée', 'Heure souhaitée', 'Créneau souhaité', 'Tarif estimé', 'Détail du tarif'
     ];
+    const labelMap = new Map(canonicalLabels.map((label) => [normalizeImportedLabel(label), label.toLowerCase()]));
+    const lines = text.split('\n');
 
-    const escaped = labels.map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-    const regex = new RegExp(`(?:^|\\n)\\s*(${escaped})\\s*[:\\t]\\s*([\\s\\S]*?)(?=\\n\\s*(?:${escaped})\\s*[:\\t]|$)`, 'gi');
-    let match;
-    while ((match = regex.exec(text))) rows[match[1].toLowerCase()] = match[2].trim();
+    const save = (label, value) => {
+      const key = labelMap.get(normalizeImportedLabel(label));
+      const clean = String(value || '').trim();
+      if (key && clean) rows[key] = clean;
+    };
 
-    if (!Object.keys(rows).length) {
-      text.split('\n').forEach((line) => {
-        const idx = line.indexOf(':');
-        if (idx < 1) return;
-        const key = line.slice(0, idx).trim().toLowerCase();
-        const value = line.slice(idx + 1).trim();
-        rows[key] = value;
-      });
+    // FormSubmit copié depuis un rendu tableau/Markdown :
+    // | **Téléphone** |   |
+    // | --- | - |
+    // ```
+    // 06 12 34 56 78
+    // ```
+    for (let i = 0; i < lines.length; i += 1) {
+      const line = lines[i].trim();
+      const tableMatch = line.match(/^\|\s*(?:\*\*)?(.+?)(?:\*\*)?\s*\|/);
+      if (!tableMatch) continue;
+
+      const normalized = normalizeImportedLabel(tableMatch[1]);
+      if (!labelMap.has(normalized)) continue;
+
+      let value = '';
+      let j = i + 1;
+      while (j < lines.length && j <= i + 8) {
+        const candidate = lines[j].trim();
+        if (!candidate || /^\|\s*:?-{1,}/.test(candidate)) {
+          j += 1;
+          continue;
+        }
+
+        if (candidate.startsWith('```')) {
+          j += 1;
+          const buffer = [];
+          while (j < lines.length && !lines[j].trim().startsWith('```')) {
+            buffer.push(lines[j]);
+            j += 1;
+          }
+          value = buffer.join('\n').trim();
+          break;
+        }
+
+        // Certains clients mail copient directement la valeur sur la ligne suivante.
+        if (!candidate.startsWith('|')) value = candidate;
+        break;
+      }
+
+      save(tableMatch[1], value);
+      if (value) i = Math.max(i, j);
     }
+
+    // Format texte classique : "Nom: Jean", "Nom\tJean" ou "Nom = Jean".
+    lines.forEach((line) => {
+      const match = line.match(/^\s*([^:=\t]+?)\s*(?::|=|\t)\s*(.+?)\s*$/);
+      if (match) save(match[1], match[2]);
+    });
+
+    // Format copié depuis certains webmails : libellé seul, puis valeur à la ligne suivante.
+    for (let i = 0; i < lines.length; i += 1) {
+      const label = lines[i].trim().replace(/^\|\s*|\s*\|$/g, '');
+      if (!labelMap.has(normalizeImportedLabel(label))) continue;
+      if (rows[labelMap.get(normalizeImportedLabel(label))]) continue;
+
+      let j = i + 1;
+      while (j < lines.length && !lines[j].trim()) j += 1;
+      if (j >= lines.length) continue;
+      const candidate = lines[j].trim();
+      if (!candidate.startsWith('|') && !labelMap.has(normalizeImportedLabel(candidate))) save(label, candidate);
+    }
+
     return rows;
   }
 
