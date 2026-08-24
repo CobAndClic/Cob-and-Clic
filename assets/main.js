@@ -171,14 +171,14 @@
 
     if (profileSel.options.length >= 3) {
       profileSel.options[0].textContent = isRemote
-        ? 'Particulier – 30 € TTC / session'
-        : 'Particulier – 60 € / h TTC';
+        ? 'Particulier - 30 € TTC / session'
+        : 'Particulier - 60 € / h TTC';
       profileSel.options[1].textContent = isRemote
-        ? 'Professionnel – 30 € HT / session'
-        : 'Professionnel – 90 € / h HT';
+        ? 'Professionnel - 30 € HT / session'
+        : 'Professionnel - 90 € / h HT';
       profileSel.options[2].textContent = isRemote
-        ? 'Collectivité – 30 € HT / session'
-        : 'Collectivité – 90 € / h HT';
+        ? 'Collectivité - 30 € HT / session'
+        : 'Collectivité - 90 € / h HT';
     }
 
     if (serviceHelpEl) {
@@ -380,7 +380,7 @@
     serviceType.value = remoteServiceValue;
   }
   if (initialQuery.get('demande') === 'site') {
-    requestType.value = 'Demande de devis – création de site web';
+    requestType.value = 'Demande de devis - création de site web';
     serviceType.value = 'Création de site web';
   }
 
@@ -388,101 +388,123 @@
   setPlannerEnabled(requestType.value === appointmentValue);
 })();
 
-/* ====== FORMULAIRE DE CONTACT : ENVOI DIRECT ====== */
+/* ====== FORMULAIRE DE CONTACT : VALIDATION + ENVOI ====== */
 (function () {
   const form = document.getElementById('contact-request-form');
   if (!form) return;
 
-  const endpoint = form.dataset.formsubmitEndpoint;
   const submitButton = document.getElementById('contact_submit');
   const statusElement = document.getElementById('contact-form-status');
   const subjectInput = document.getElementById('contact_subject');
   const requestType = document.getElementById('request_type');
   const serviceType = document.getElementById('service_type');
+  const emailInput = document.getElementById('customer_email');
+  const phoneInput = document.getElementById('customer_phone');
+  const emailError = document.getElementById('customer_email_error');
+  const phoneError = document.getElementById('customer_phone_error');
 
   function setStatus(message, type) {
+    if (!statusElement) return;
     statusElement.textContent = message;
     statusElement.className = `form-status is-visible ${type}`;
     statusElement.focus({ preventScroll: true });
   }
 
+  function setFieldState(input, errorElement, message = '') {
+    if (!input || !errorElement) return true;
+    const hasError = Boolean(message);
+    input.setAttribute('aria-invalid', hasError ? 'true' : 'false');
+    errorElement.textContent = message;
+    if (message) input.setCustomValidity(message);
+    else input.setCustomValidity('');
+    return !hasError;
+  }
+
+  function validateEmail() {
+    if (!emailInput) return true;
+    const value = emailInput.value.trim();
+    emailInput.value = value;
+
+    if (!value) {
+      return setFieldState(emailInput, emailError, 'Renseignez une adresse e-mail.');
+    }
+
+    // Pragmatic browser-side check. The address is still validated by the mail service after submission.
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailPattern.test(value)) {
+      return setFieldState(emailInput, emailError, 'Vérifiez l’adresse e-mail, par exemple nom@domaine.fr.');
+    }
+
+    return setFieldState(emailInput, emailError);
+  }
+
+  function validatePhone() {
+    if (!phoneInput) return true;
+    const value = phoneInput.value.trim();
+    phoneInput.value = value;
+
+    if (!value) {
+      return setFieldState(phoneInput, phoneError, 'Renseignez un numéro de téléphone.');
+    }
+
+    const compact = value.replace(/[\s.()-]/g, '');
+    const frenchPhonePattern = /^(?:\+33|0)[1-9]\d{8}$/;
+    if (!frenchPhonePattern.test(compact)) {
+      return setFieldState(phoneInput, phoneError, 'Vérifiez le numéro : 06 12 34 56 78 ou +33 6 12 34 56 78.');
+    }
+
+    return setFieldState(phoneInput, phoneError);
+  }
+
+  emailInput?.addEventListener('blur', validateEmail);
+  phoneInput?.addEventListener('blur', validatePhone);
+  emailInput?.addEventListener('input', () => {
+    if (emailInput.getAttribute('aria-invalid') === 'true') validateEmail();
+  });
+  phoneInput?.addEventListener('input', () => {
+    if (phoneInput.getAttribute('aria-invalid') === 'true') validatePhone();
+  });
+
   const query = new URLSearchParams(window.location.search);
 
   if (query.get('envoi') === 'ok') {
     setStatus(
-      'Votre demande a bien été envoyée à Cob & Clic. Vous recevrez une réponse dès que possible.',
+      'Votre demande a bien été envoyée. Un e-mail de confirmation vient également d’être envoyé à l’adresse renseignée.',
       'success'
     );
 
     query.delete('envoi');
-
     const cleanQuery = query.toString();
     const cleanUrl =
       window.location.pathname +
       (cleanQuery ? `?${cleanQuery}` : '') +
       window.location.hash;
-
     window.history.replaceState({}, '', cleanUrl);
   }
 
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
+  form.addEventListener('submit', (event) => {
+    const emailIsValid = validateEmail();
+    const phoneIsValid = validatePhone();
 
-    if (!form.reportValidity()) return;
+    if (!emailIsValid || !phoneIsValid || !form.checkValidity()) {
+      event.preventDefault();
+      form.reportValidity();
+      setStatus('Vérifiez les champs indiqués avant d’envoyer la demande.', 'error');
+      return;
+    }
 
     const honeyPot = form.querySelector('[name="_honey"]');
-    if (honeyPot?.value) return;
-
-    subjectInput.value =
-      `Cob & Clic – ${requestType.value} – ${serviceType.value}`;
-
-    const originalButtonText = submitButton.textContent;
-    submitButton.disabled = true;
-    submitButton.textContent = 'Envoi en cours…';
-    setStatus('Envoi de votre demande en cours…', 'pending');
-
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          Accept: 'application/json'
-        },
-        body: new FormData(form)
-      });
-
-      let responseData = {};
-
-      try {
-        responseData = await response.json();
-      } catch {
-        responseData = {};
-      }
-
-      if (!response.ok || responseData.success === false) {
-        throw new Error(
-          responseData.message ||
-          'Le service de formulaire a refusé la demande.'
-        );
-      }
-
-      form.reset();
-      requestType.dispatchEvent(new Event('change'));
-      serviceType.dispatchEvent(new Event('change'));
-
-      setStatus(
-        'Votre demande a bien été envoyée à Cob & Clic. Vous recevrez une réponse dès que possible.',
-        'success'
-      );
-    } catch (error) {
-      console.error('Échec de l’envoi du formulaire :', error);
-
-      setStatus(
-        'L’envoi automatique n’a pas abouti. Réessayez dans quelques instants, écrivez à contact@cobandclic.fr ou appelez le 07 81 02 51 18.',
-        'error'
-      );
-    } finally {
-      submitButton.disabled = false;
-      submitButton.textContent = originalButtonText;
+    if (honeyPot?.value) {
+      event.preventDefault();
+      return;
     }
+
+    subjectInput.value = `Cob & Clic - ${requestType.value} - ${serviceType.value}`;
+    submitButton.disabled = true;
+    submitButton.textContent = 'Envoi en cours...';
+    setStatus('Envoi de votre demande en cours...', 'pending');
+
+    // Intentionally no preventDefault here: FormSubmit's automatic customer reply
+    // only works with a standard form POST, not with its AJAX endpoint.
   });
 })();
