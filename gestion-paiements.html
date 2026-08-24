@@ -15,15 +15,15 @@
     <header class="payment-admin-topbar">
       <a class="payment-admin-brand" href="index.html" aria-label="Retour au site Cob & Clic">
         <img src="assets/img/Logo_Cob-and-clic.png" alt="" />
-        <span><strong>Cob & Clic</strong><small>Gestion des règlements</small></span>
+        <span><strong>Cob & Clic</strong><small>Gestion des règlements & factures</small></span>
       </a>
       <div class="payment-admin-private"><span class="payment-admin-lock" aria-hidden="true">●</span> Espace privé</div>
     </header>
 
     <section class="payment-admin-intro">
-      <span class="eyebrow">Paiements clients</span>
-      <h1>Préparer un règlement en quelques secondes</h1>
-      <p>Reprenez les informations reçues depuis le formulaire, indiquez le montant et votre lien marchand. Cob & Clic génère ensuite une page client personnalisée et envoie le mail automatiquement.</p>
+      <span class="eyebrow">Interventions, règlements & factures</span>
+      <h1>Finaliser une intervention en quelques secondes</h1>
+      <p>Reprenez la demande reçue, vérifiez les informations du client puis choisissez : envoyer uniquement un règlement, ou terminer l’intervention et émettre sa facture définitive.</p>
     </section>
 
     <div class="payment-admin-grid">
@@ -88,6 +88,29 @@
             </div>
           </div>
 
+          <div class="payment-form-section invoice-client-section">
+            <h3>Facturation</h3>
+            <p class="field-help invoice-section-help">Ces informations servent uniquement à la facture. Pour une facture professionnelle, renseignez aussi l’entreprise et son SIREN.</p>
+            <div class="payment-form-grid">
+              <label>Type de client
+                <select id="invoice-client-type" name="invoiceClientType">
+                  <option value="particulier" selected>Particulier</option>
+                  <option value="professionnel">Professionnel / association / collectivité</option>
+                </select>
+              </label>
+              <label class="invoice-professional-field" hidden>Entreprise / organisme
+                <input id="invoice-client-company" name="invoiceClientCompany" type="text" maxlength="160" placeholder="Ex. Association Exemple" />
+              </label>
+              <label class="invoice-professional-field" hidden>SIREN du client
+                <input id="invoice-client-siren" name="invoiceClientSiren" type="text" inputmode="numeric" maxlength="14" placeholder="123 456 789" />
+              </label>
+              <label class="field-full">Adresse de facturation / intervention
+                <input id="invoice-client-address" name="invoiceClientAddress" type="text" maxlength="220" autocomplete="street-address" placeholder="12 rue Exemple, 76120 Le Grand-Quevilly" />
+                <span class="field-help">Elle sera demandée au moment d’émettre la facture afin que le document comporte l’adresse du client.</span>
+              </label>
+            </div>
+          </div>
+
           <div class="payment-form-section payment-price-section">
             <h3>Règlement</h3>
             <div class="payment-form-grid payment-form-grid-price">
@@ -123,8 +146,18 @@
             </div>
           </div>
 
-          <div class="payment-submit-zone">
-            <button class="btn btn-primary payment-main-submit" type="submit" id="payment-send-button">Créer la page et envoyer le mail</button>
+          <div class="invoice-finalize-box">
+            <div>
+              <span class="payment-kicker">Facture définitive</span>
+              <h3>Terminer l’intervention</h3>
+              <p>Ce bouton attribuera un numéro de facture chronologique, enregistrera une copie définitive et enverra le PDF au client. Une facture émise ne sera plus modifiable depuis cette interface.</p>
+            </div>
+            <button class="btn btn-dark invoice-issue-button" type="button" id="invoice-issue-button">Terminer, facturer et envoyer</button>
+          </div>
+          <div class="invoice-admin-status" id="invoice-admin-status" role="status" aria-live="polite"></div>
+
+          <div class="payment-submit-zone payment-only-zone">
+            <button class="btn btn-primary payment-main-submit" type="submit" id="payment-send-button">Envoyer uniquement le règlement</button>
             <button class="btn btn-ghost" type="button" id="payment-link-only">Créer le lien sans envoyer</button>
           </div>
           <div class="payment-admin-status" id="payment-admin-status" role="status" aria-live="polite"></div>
@@ -175,6 +208,19 @@
       </div>
     </section>
 
+    <section class="invoice-history-card" aria-labelledby="invoice-history-title">
+      <div class="invoice-history-head">
+        <div>
+          <span class="payment-kicker">Mémoire Cob & Clic</span>
+          <h2 id="invoice-history-title">Dernières factures</h2>
+          <p>Une fois la base activée, les factures émises apparaîtront ici. Les données de facturation restent enregistrées côté serveur.</p>
+        </div>
+        <button class="btn btn-ghost" type="button" id="invoice-history-refresh">Actualiser</button>
+      </div>
+      <div class="invoice-history-empty" id="invoice-history-empty">Aucune facture chargée pour le moment.</div>
+      <div class="invoice-history-list" id="invoice-history-list"></div>
+    </section>
+
     <footer class="payment-admin-footer">
       <p>Interface volontairement absente du menu et du sitemap. L'accès à la création reste protégé par la clé d'administration du serveur.</p>
     </footer>
@@ -182,5 +228,6 @@
 
   <script src="assets/payment-config.js"></script>
   <script src="assets/payment-admin.js"></script>
+  <script src="assets/invoice-admin.js"></script>
 </body>
 </html>
