@@ -3,42 +3,79 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Paiement sécurisé | Cob & Clic</title>
+  <title>Votre règlement | Cob & Clic</title>
   <meta name="description" content="Page privée de règlement Cob & Clic." />
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+  <meta name="referrer" content="no-referrer" />
   <link rel="stylesheet" href="assets/base.css" />
   <link rel="icon" href="favicon.ico" />
 </head>
-<body class="payment-page">
-  <main class="payment-shell">
-    <img class="payment-logo" src="assets/img/Logo_Cob-and-clic.png" alt="Cob & Clic - Le bon réflexe numérique" />
-    <section class="payment-panel" aria-labelledby="payment-title">
-      <span class="eyebrow">Règlement en ligne</span>
-      <h1 id="payment-title">Paiement sécurisé Cob & Clic</h1>
-      <p class="lead">Cette page est destinée uniquement aux clients ayant déjà reçu une confirmation de prestation et de montant.</p>
+<body class="payment-page payment-client-page">
+  <main class="payment-client-shell">
+    <a class="payment-client-brand" href="index.html" aria-label="Cob & Clic">
+      <img src="assets/img/Logo_Cob-and-clic.png" alt="" />
+      <span><strong>Cob & Clic</strong><small>Le bon réflexe numérique</small></span>
+    </a>
 
-      <div class="payment-summary">
-        <div><span>Prestation</span><strong>Confirmée avec Cob & Clic</strong></div>
-        <div><span>Montant</span><strong>Celui indiqué dans votre confirmation</strong></div>
+    <section class="payment-client-card" aria-labelledby="payment-title">
+      <div class="payment-client-status" id="payment-loading">
+        <span class="payment-loader" aria-hidden="true"></span>
+        <div><strong>Préparation de votre règlement...</strong><span>Vérification du lien Cob & Clic.</span></div>
       </div>
 
-      <div class="payment-provider-grid" aria-label="Moyens de paiement">
-        <div class="payment-provider">
-          <strong>Carte bancaire</strong>
-          <span>Le bouton de paiement sécurisé sera relié à Stripe dès que le lien marchand sera configuré.</span>
+      <div id="payment-content" hidden>
+        <div class="payment-client-heading">
+          <span class="eyebrow">Demande de règlement</span>
+          <h1 id="payment-title">Votre prestation est prête à être réglée</h1>
+          <p class="lead" id="payment-greeting">Bonjour, retrouvez ci-dessous les informations confirmées avec Cob & Clic.</p>
         </div>
-        <div class="payment-provider">
-          <strong>PayPal</strong>
-          <span>Le bouton PayPal sera activé dès que le lien de règlement Cob & Clic sera configuré.</span>
+
+        <div class="payment-client-summary">
+          <div class="payment-client-main-info">
+            <span class="payment-kicker">Montant à régler</span>
+            <strong class="payment-client-amount" id="payment-amount">-</strong>
+            <span class="payment-client-ref">Référence <strong id="payment-reference">-</strong></span>
+          </div>
+          <div class="payment-client-detail-list">
+            <div><span>Client</span><strong id="payment-client">-</strong></div>
+            <div id="payment-city-row"><span>Ville</span><strong id="payment-city">-</strong></div>
+            <div><span>Prestation</span><strong id="payment-service">-</strong></div>
+            <div id="payment-date-row"><span>Date</span><strong id="payment-date">-</strong></div>
+          </div>
         </div>
+
+        <div class="payment-client-description">
+          <span class="payment-kicker">Détail de la prestation</span>
+          <p id="payment-description">-</p>
+        </div>
+
+        <a class="btn btn-primary payment-client-pay-button" id="payment-provider-button" href="#" rel="noopener noreferrer">Continuer vers le paiement sécurisé</a>
+        <p class="payment-provider-warning">Vous allez quitter cobandclic.fr pour accéder à la page sécurisée du prestataire de paiement. Vérifiez toujours le montant affiché avant de confirmer le règlement.</p>
+
+        <div class="payment-client-trust">
+          <div><span aria-hidden="true">✓</span><p><strong>Lien personnalisé</strong><br />Les informations de cette page sont protégées et ne peuvent pas être modifiées depuis l'adresse affichée.</p></div>
+          <div><span aria-hidden="true">✓</span><p><strong>Aucun numéro de carte chez Cob & Clic</strong><br />Vos données bancaires sont saisies uniquement chez le prestataire de paiement.</p></div>
+          <div><span aria-hidden="true">✓</span><p><strong>Un doute ?</strong><br />Écrivez à <a href="mailto:contact@cobandclic.fr">contact@cobandclic.fr</a> avant de régler.</p></div>
+        </div>
+
+        <p class="payment-expiry" id="payment-expiry"></p>
       </div>
 
-      <p class="payment-disabled"><strong>Paiement en ligne non encore activé.</strong> Ne réglez jamais un montant différent de celui confirmé directement par Cob & Clic.</p>
-      <div class="payment-trust">
-        <p><strong>Bon réflexe :</strong> vérifiez que l’adresse affichée dans votre navigateur commence bien par <strong>https://www.cobandclic.fr/</strong> avant d’utiliser cette page.</p>
-        <p>En cas de doute sur un lien reçu, contactez Cob & Clic à <a href="mailto:contact@cobandclic.fr">contact@cobandclic.fr</a>.</p>
+      <div class="payment-client-error" id="payment-error" hidden>
+        <div class="payment-error-symbol" aria-hidden="true">!</div>
+        <span class="payment-kicker">Lien indisponible</span>
+        <h1>Impossible d'ouvrir cette demande de règlement</h1>
+        <p id="payment-error-message">Le lien est peut-être incomplet ou expiré.</p>
+        <a class="btn btn-dark" href="mailto:contact@cobandclic.fr">Contacter Cob & Clic</a>
       </div>
     </section>
+
+    <footer class="payment-client-footer">
+      <p>Cob & Clic - Assistance & dépannage informatique - Rouen & alentours</p>
+    </footer>
   </main>
+
+  <script src="assets/payment-config.js"></script>
+  <script src="assets/payment-client.js"></script>
 </body>
 </html>

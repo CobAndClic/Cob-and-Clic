@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gestion des paiements | Cob & Clic</title>
+  <meta name="description" content="Interface privée Cob & Clic pour préparer et envoyer une demande de règlement." />
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+  <meta name="referrer" content="no-referrer" />
+  <link rel="stylesheet" href="assets/base.css" />
+  <link rel="icon" href="favicon.ico" />
+</head>
+<body class="payment-admin-page">
+  <main class="payment-admin-shell">
+    <header class="payment-admin-topbar">
+      <a class="payment-admin-brand" href="index.html" aria-label="Retour au site Cob & Clic">
+        <img src="assets/img/Logo_Cob-and-clic.png" alt="" />
+        <span><strong>Cob & Clic</strong><small>Gestion des règlements</small></span>
+      </a>
+      <div class="payment-admin-private"><span class="payment-admin-lock" aria-hidden="true">●</span> Espace privé</div>
+    </header>
+
+    <section class="payment-admin-intro">
+      <span class="eyebrow">Paiements clients</span>
+      <h1>Préparer un règlement en quelques secondes</h1>
+      <p>Reprenez les informations reçues depuis le formulaire, indiquez le montant et votre lien marchand. Cob & Clic génère ensuite une page client personnalisée et envoie le mail automatiquement.</p>
+    </section>
+
+    <div class="payment-admin-grid">
+      <section class="payment-admin-card" aria-labelledby="admin-form-title">
+        <div class="payment-admin-card-head">
+          <div>
+            <span class="payment-step">1</span>
+            <h2 id="admin-form-title">Informations du client</h2>
+          </div>
+          <button class="btn btn-ghost payment-mini-btn" type="button" id="toggle-import">Importer une demande reçue</button>
+        </div>
+
+        <div class="payment-importer" id="payment-importer" hidden>
+          <label for="import-text">Collez ici le contenu du mail reçu depuis le formulaire
+            <textarea id="import-text" rows="7" placeholder="Nom: ...&#10;email: ...&#10;Téléphone: ...&#10;Ville / commune: ...&#10;Besoin: ...&#10;Message: ..."></textarea>
+          </label>
+          <div class="payment-inline-actions">
+            <button class="btn btn-dark" type="button" id="import-request">Pré-remplir le formulaire</button>
+            <button class="btn btn-ghost" type="button" id="clear-import">Effacer</button>
+          </div>
+          <p class="field-help">L'import fonctionne avec le texte copié depuis les demandes FormSubmit. Vous pouvez toujours corriger les champs avant l'envoi.</p>
+        </div>
+
+        <form class="payment-admin-form" id="payment-admin-form" novalidate>
+          <div class="payment-form-section">
+            <h3>Client</h3>
+            <div class="payment-form-grid">
+              <label>Nom et prénom
+                <input id="pay-client-name" name="clientName" type="text" maxlength="120" autocomplete="name" required placeholder="Ex. Marie Dupont" />
+              </label>
+              <label>Adresse e-mail
+                <input id="pay-client-email" name="clientEmail" type="email" maxlength="160" autocomplete="email" required placeholder="marie@exemple.fr" />
+              </label>
+              <label>Téléphone
+                <input id="pay-client-phone" name="clientPhone" type="tel" maxlength="30" autocomplete="tel" placeholder="06 12 34 56 78" />
+              </label>
+              <label>Ville / commune
+                <input id="pay-client-city" name="clientCity" type="text" maxlength="120" autocomplete="address-level2" placeholder="Le Grand-Quevilly" />
+              </label>
+            </div>
+          </div>
+
+          <div class="payment-form-section">
+            <h3>Intervention</h3>
+            <div class="payment-form-grid">
+              <label>Type de prestation
+                <select id="pay-service" name="service" required>
+                  <option value="Assistance & dépannage à domicile">Assistance & dépannage à domicile</option>
+                  <option value="Assistance numérique">Assistance numérique</option>
+                  <option value="Assistance à distance">Assistance à distance</option>
+                  <option value="Sensibilisation cybersécurité">Sensibilisation cybersécurité</option>
+                  <option value="Intervention professionnel / association / collectivité">Professionnel / association / collectivité</option>
+                  <option value="Autre prestation">Autre prestation</option>
+                </select>
+              </label>
+              <label>Date de l'intervention
+                <input id="pay-date" name="interventionDate" type="date" />
+              </label>
+              <label class="field-full">Description courte
+                <textarea id="pay-description" name="description" rows="4" maxlength="700" required placeholder="Ex. Configuration d'une imprimante Wi-Fi et prise en main sur ordinateur."></textarea>
+              </label>
+            </div>
+          </div>
+
+          <div class="payment-form-section payment-price-section">
+            <h3>Règlement</h3>
+            <div class="payment-form-grid payment-form-grid-price">
+              <label>Montant TTC
+                <div class="payment-money-input"><input id="pay-amount" name="amount" type="number" min="1" max="9999" step="0.01" inputmode="decimal" required placeholder="60,00" /><span>€</span></div>
+              </label>
+              <label>Référence Cob & Clic
+                <div class="payment-reference-row"><input id="pay-reference" name="reference" type="text" maxlength="60" required /><button class="payment-icon-btn" type="button" id="refresh-reference" title="Générer une nouvelle référence" aria-label="Générer une nouvelle référence">↻</button></div>
+              </label>
+              <label class="field-full">Lien de paiement marchand
+                <input id="pay-provider-url" name="providerUrl" type="url" maxlength="1000" required placeholder="https://..." />
+                <span class="field-help">Collez ici le lien sécurisé généré par votre banque, Stripe, SumUp, PayPal ou autre prestataire. Le client ne verra pas ce lien avant d'ouvrir sa page Cob & Clic.</span>
+              </label>
+              <label>Validité du lien Cob & Clic
+                <select id="pay-validity" name="validityDays">
+                  <option value="7">7 jours</option>
+                  <option value="14" selected>14 jours</option>
+                  <option value="30">30 jours</option>
+                </select>
+              </label>
+              <label class="payment-checkbox-label"><input id="pay-copy" name="sendCopy" type="checkbox" checked /> <span>M'envoyer une copie du mail</span></label>
+            </div>
+          </div>
+
+          <div class="payment-form-section payment-security-section">
+            <h3>Autorisation</h3>
+            <div class="payment-form-grid">
+              <label class="field-full">Clé d'administration
+                <input id="pay-admin-key" name="adminKey" type="password" autocomplete="current-password" required placeholder="Votre clé privée" />
+                <span class="field-help">Elle n'est jamais intégrée au site ni au lien client. Elle sert uniquement à autoriser la création et l'envoi depuis le serveur.</span>
+              </label>
+              <label class="payment-checkbox-label field-full"><input id="pay-remember-key" type="checkbox" /> <span>Garder la clé uniquement jusqu'à la fermeture de cet onglet</span></label>
+            </div>
+          </div>
+
+          <div class="payment-submit-zone">
+            <button class="btn btn-primary payment-main-submit" type="submit" id="payment-send-button">Créer la page et envoyer le mail</button>
+            <button class="btn btn-ghost" type="button" id="payment-link-only">Créer le lien sans envoyer</button>
+          </div>
+          <div class="payment-admin-status" id="payment-admin-status" role="status" aria-live="polite"></div>
+        </form>
+      </section>
+
+      <aside class="payment-preview-card" aria-labelledby="preview-title">
+        <div class="payment-preview-sticky">
+          <div class="payment-preview-head">
+            <span class="payment-step">2</span>
+            <div><span class="payment-kicker">Aperçu client</span><h2 id="preview-title">Ce que votre client verra</h2></div>
+          </div>
+          <div class="payment-preview-window">
+            <div class="payment-preview-logo"><img src="assets/img/Logo_Cob-and-clic.png" alt="Cob & Clic" /></div>
+            <span class="payment-preview-pill">Demande de règlement</span>
+            <h3 id="preview-client-name">Votre client</h3>
+            <p class="payment-preview-description" id="preview-description">La prestation apparaîtra ici.</p>
+            <dl class="payment-preview-list">
+              <div><dt>Prestation</dt><dd id="preview-service">Assistance & dépannage à domicile</dd></div>
+              <div><dt>Référence</dt><dd id="preview-reference">-</dd></div>
+              <div><dt>Montant</dt><dd class="payment-preview-amount" id="preview-amount">0,00 €</dd></div>
+            </dl>
+            <div class="payment-preview-button">Continuer vers le paiement sécurisé</div>
+            <p class="payment-preview-note">Le règlement s'effectuera ensuite sur la page sécurisée du prestataire choisi.</p>
+          </div>
+          <div class="payment-flow-summary">
+            <strong>Votre parcours en 3 clics</strong>
+            <ol><li>Vous complétez ce formulaire.</li><li>Le client reçoit son lien Cob & Clic.</li><li>Il vérifie les informations puis règle via votre prestataire.</li></ol>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="payment-result-card" id="payment-result" hidden aria-labelledby="payment-result-title">
+      <div class="payment-result-icon" aria-hidden="true">✓</div>
+      <div class="payment-result-content">
+        <span class="payment-kicker">Demande prête</span>
+        <h2 id="payment-result-title">Le lien client a été créé</h2>
+        <p id="payment-result-message">Vous pouvez le copier ou ouvrir la page client.</p>
+        <div class="payment-result-link-row">
+          <input id="payment-result-url" type="text" readonly aria-label="Lien de paiement client" />
+          <button class="btn btn-dark" type="button" id="copy-payment-url">Copier le lien</button>
+        </div>
+        <div class="payment-inline-actions">
+          <a class="btn btn-primary" id="open-payment-url" href="#" target="_blank" rel="noopener noreferrer">Voir la page client</a>
+          <button class="btn btn-ghost" type="button" id="new-payment-request">Nouvelle demande</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="payment-admin-footer">
+      <p>Interface volontairement absente du menu et du sitemap. L'accès à la création reste protégé par la clé d'administration du serveur.</p>
+    </footer>
+  </main>
+
+  <script src="assets/payment-config.js"></script>
+  <script src="assets/payment-admin.js"></script>
+</body>
+</html>
