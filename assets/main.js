@@ -36,7 +36,7 @@
   });
 
   window.addEventListener('resize', () => {
-    if (window.innerWidth >= 860) setOpen(false);
+    if (window.innerWidth >= 1180) setOpen(false);
   });
 })();
 
@@ -58,7 +58,8 @@
   const root = document.getElementById('planner');
   const requestType = document.getElementById('request_type');
   const serviceType = document.getElementById('service_type');
-  if (!form || !root || !requestType || !serviceType) return;
+  const issueSel = document.getElementById('issue_type');
+  if (!form || !root || !requestType || !serviceType || !issueSel) return;
 
   const profileSel = document.getElementById('planner_profile');
   const customerProfile = document.getElementById('customer_profile');
@@ -77,6 +78,78 @@
 
   const appointmentValue = 'Demande d’intervention / prise de rendez-vous';
   const remoteServiceValue = 'Assistance informatique à distance (AnyDesk)';
+  const minimumLeadMinutes = 30;
+
+  const issueOptions = {
+    'Assistance et dépannage informatique à domicile': [
+      'Windows ne démarre plus / écran noir',
+      'Le PC démarre directement dans le BIOS / UEFI',
+      'PC très lent / se fige',
+      'Écran bleu / redémarrages / plantages',
+      'Erreur Windows / mise à jour bloquée',
+      'Un logiciel ne fonctionne plus correctement',
+      'Compte Windows local / mot de passe oublié',
+      'Récupération de fichiers / données',
+      'Sauvegarde / transfert de données',
+      'Autre panne informatique'
+    ],
+    'Aide smartphone / tablette': [
+      'Prise en main de l’appareil',
+      'Application qui ne fonctionne pas',
+      'E-mail / compte / mot de passe',
+      'Photos / sauvegarde / transfert',
+      'Connexion Wi-Fi / Internet',
+      'Réglages / notifications / stockage',
+      'Changement de téléphone / transfert de données',
+      'Autre problème smartphone / tablette'
+    ],
+    'Box / Wi-Fi / TV / imprimante': [
+      'Plus de connexion Internet',
+      'Wi-Fi lent ou instable',
+      'Un appareil ne se connecte plus au Wi-Fi',
+      'Imprimante non détectée / n’imprime plus',
+      'Installation / configuration d’une imprimante',
+      'TV / appareil connecté / box à configurer',
+      'Autre problème de connexion ou périphérique'
+    ],
+    'Assistance informatique à distance (AnyDesk)': [
+      'Erreur ou bug logiciel',
+      'Navigateur / e-mail / compte en ligne',
+      'Mise à jour / réglage Windows',
+      'Installation / configuration d’un logiciel',
+      'Aide pour une démarche ou un document',
+      'Autre problème logiciel simple'
+    ],
+    'Assistance / initiation numérique': [
+      'Découvrir un ordinateur',
+      'Découvrir un smartphone / une tablette',
+      'Envoyer des e-mails / pièces jointes',
+      'Gérer des photos / fichiers',
+      'Faire une démarche en ligne',
+      'Apprendre à utiliser un service ou une application',
+      'Autre besoin d’accompagnement'
+    ],
+    'Sécurité / prévention des arnaques': [
+      'J’ai reçu un e-mail ou SMS suspect',
+      'Je pense avoir cliqué sur un faux lien',
+      'Sécuriser mes mots de passe / comptes',
+      'Mettre en place la double authentification',
+      'Vérifier les réglages de sécurité de mon appareil',
+      'Sensibilisation phishing / cybersécurité',
+      'Autre question de sécurité'
+    ],
+    'Création de site web': [
+      'Créer un site vitrine',
+      'Modifier / améliorer un site existant',
+      'Nom de domaine / mise en ligne',
+      'Autre besoin lié à un site web'
+    ],
+    'Autre demande': [
+      'Je ne sais pas dans quelle catégorie classer mon problème',
+      'Autre demande'
+    ]
+  };
+
   const plannerControls = [
     profileSel,
     dateInp,
@@ -100,18 +173,11 @@
     return `${year}-${month}-${day}`;
   };
 
-  function getNextHalfHour(now = new Date()) {
-    const next = new Date(now);
-    next.setSeconds(0, 0);
-
-    if (next.getMinutes() < 30) {
-      next.setMinutes(30);
-    } else {
-      next.setMinutes(0);
-      next.setHours(next.getHours() + 1);
-    }
-
-    return next;
+  function getEarliestAppointment(now = new Date()) {
+    const halfHourMs = 30 * 60 * 1000;
+    const leadMs = minimumLeadMinutes * 60 * 1000;
+    const earliestMs = Math.ceil((now.getTime() + leadMs) / halfHourMs) * halfHourMs;
+    return new Date(earliestMs);
   }
 
   function buildTimesForDate(dateValue) {
@@ -126,12 +192,12 @@
     let startMinute = 0;
 
     if (dateValue === today) {
-      const next = getNextHalfHour(now);
+      const next = getEarliestAppointment(now);
 
       if (localDateStr(next) !== today) {
-        const tomorrow = new Date(now);
-        tomorrow.setDate(now.getDate() + 1);
-        dateInp.value = localDateStr(tomorrow);
+        dateInp.value = localDateStr(next);
+        startHour = next.getHours();
+        startMinute = next.getMinutes();
       } else {
         startHour = next.getHours();
         startMinute = next.getMinutes();
@@ -149,11 +215,23 @@
       });
     }
 
+    timeSel.setCustomValidity('');
     timeSel.innerHTML =
       '<option value="">Choisir une heure</option>' +
       times
         .map((time) => `<option value="${time}">${time}</option>`)
         .join('');
+  }
+
+  function syncIssueOptions(preserveSelection = false) {
+    const previous = preserveSelection ? issueSel.value : '';
+    const options = issueOptions[serviceType.value] || issueOptions['Autre demande'];
+
+    issueSel.innerHTML =
+      '<option value="">Choisir la situation la plus proche</option>' +
+      options.map((label) => `<option value="${label}">${label}</option>`).join('');
+
+    if (previous && options.includes(previous)) issueSel.value = previous;
   }
 
   function syncProfile() {
@@ -237,6 +315,22 @@
     }
   }
 
+  function validateMinimumLeadTime() {
+    if (root.hidden || !dateInp.value || !timeSel.value) {
+      timeSel.setCustomValidity('');
+      return true;
+    }
+
+    const selected = getSelectedDateTime();
+    const earliest = getEarliestAppointment(new Date());
+    const valid = Boolean(selected && selected.getTime() >= earliest.getTime());
+
+    timeSel.setCustomValidity(
+      valid ? '' : `Choisissez un créneau situé au moins ${minimumLeadMinutes} minutes après l’heure actuelle.`
+    );
+    return valid;
+  }
+
   function compute() {
     const dateValue = dateInp.value;
     const timeValue = timeSel.value;
@@ -244,6 +338,16 @@
     if (!dateValue || !timeValue) {
       rateEl.textContent = '-';
       noteEl.textContent = 'Choisissez une date et une heure.';
+      slotInput.value = '';
+      rateInput.value = '';
+      noteInput.value = '';
+      timeSel.setCustomValidity('');
+      return;
+    }
+
+    if (!validateMinimumLeadTime()) {
+      rateEl.textContent = '-';
+      noteEl.textContent = `Ce créneau est trop proche. Choisissez un horaire situé au moins ${minimumLeadMinutes} minutes après l’heure actuelle.`;
       slotInput.value = '';
       rateInput.value = '';
       noteInput.value = '';
@@ -366,6 +470,7 @@
   profileSel.addEventListener('change', compute);
   urgentChk.addEventListener('change', compute);
   serviceType.addEventListener('change', () => {
+    syncIssueOptions();
     updateServicePresentation();
     updateUrgentAvailability(true);
     compute();
@@ -384,8 +489,14 @@
     serviceType.value = 'Création de site web';
   }
 
+  syncIssueOptions();
   updateServicePresentation();
   setPlannerEnabled(requestType.value === appointmentValue);
+
+  form.addEventListener('submit', () => {
+    if (root.hidden) return;
+    validateMinimumLeadTime();
+  }, true);
 })();
 
 /* ====== FORMULAIRE DE CONTACT : VALIDATION + ENVOI ====== */
@@ -398,6 +509,7 @@
   const subjectInput = document.getElementById('contact_subject');
   const requestType = document.getElementById('request_type');
   const serviceType = document.getElementById('service_type');
+  const issueType = document.getElementById('issue_type');
   const emailInput = document.getElementById('customer_email');
   const phoneInput = document.getElementById('customer_phone');
   const emailError = document.getElementById('customer_email_error');
@@ -499,7 +611,7 @@
       return;
     }
 
-    subjectInput.value = `Cob & Clic - ${requestType.value} - ${serviceType.value}`;
+    subjectInput.value = `Cob & Clic - ${requestType.value} - ${issueType?.value || serviceType.value}`;
     submitButton.disabled = true;
     submitButton.textContent = 'Envoi en cours...';
     setStatus('Envoi de votre demande en cours...', 'pending');

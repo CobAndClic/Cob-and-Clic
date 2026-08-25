@@ -17,7 +17,7 @@
   <meta property="og:type" content="website" />
 </head>
 <body>
-<header class="site-header"><div class="container wrap"><a class="brand" href="index.html" aria-label="Accueil Cob & Clic"><img src="assets/img/Logo_Cob-and-clic.png" alt="Cob & Clic" /><div class="brand-copy"><strong>Cob & Clic</strong><small>Assistance &amp; dépannage informatique<br />à domicile - Rouen &amp; alentours</small></div></a><button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-controls="site-nav" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><nav class="nav" id="site-nav" aria-label="Navigation principale"><a href="index.html">Accueil</a><a href="particuliers.html">Particuliers</a><a href="professionnels.html">Professionnels</a><a href="collectivites.html">Collectivités</a><a href="formations.html">Assistance numérique</a><a href="tarifs.html">Tarifs</a><a class="btn" href="contact.html?demande=intervention#contact-form">Demander une intervention</a></nav></div></header>
+<header class="site-header"><div class="container wrap"><a class="brand" href="index.html" aria-label="Accueil Cob & Clic"><img src="assets/img/Logo_Cob-and-clic.png" alt="Cob & Clic" /><div class="brand-copy"><strong>Cob & Clic</strong><small>Le bon réflexe numérique</small></div></a><button class="nav-toggle" type="button" aria-label="Ouvrir le menu" aria-controls="site-nav" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><nav class="nav" id="site-nav" aria-label="Navigation principale"><a href="index.html">Accueil</a><a href="particuliers.html">Particuliers</a><a href="professionnels.html">Professionnels</a><a href="collectivites.html">Collectivités</a><a href="formations.html">Assistance numérique</a><a href="tarifs.html">Tarifs</a><a class="btn" href="contact.html?demande=intervention#contact-form">Demander une intervention</a></nav></div></header>
 
 <main>
   <section class="page-hero">
@@ -30,7 +30,7 @@
         <a class="contact-choice" href="mailto:contact@cobandclic.fr">E-mail <span>contact@cobandclic.fr</span></a>
         <div class="contact-choice">Zone <span>Rouen → Tôtes</span></div>
       </div>
-      <p class="availability-line"><strong>Aucun paiement dans ce formulaire.</strong>&nbsp;Pour une assistance à distance, le lien Stripe ou PayPal est envoyé seulement après confirmation du rendez-vous et du montant.</p>
+      <p class="availability-line"><strong>Aucun paiement dans ce formulaire.</strong>&nbsp;Si un règlement est nécessaire, un lien de paiement sécurisé est envoyé uniquement après confirmation du rendez-vous et du montant.</p>
     </div>
   </section>
 
@@ -89,13 +89,21 @@
           <span class="field-help" id="service_type_help">Intervention à domicile ou sur site, facturée à l’heure selon votre profil.</span>
         </label>
 
-        <label class="field-full" for="customer_message">Votre message
-          <textarea id="customer_message" name="Message" rows="6" maxlength="5000" required placeholder="Exemple : je n’arrive plus à imprimer depuis mon ordinateur, ou je voudrais apprendre à envoyer des photos depuis mon téléphone. Je serais disponible dimanche après-midi."></textarea>
+        <label class="field-full" for="issue_type">Que se passe-t-il ?
+          <select id="issue_type" name="Problème / situation" required aria-describedby="issue_type_help">
+            <option value="">Choisissez d’abord le besoin principal</option>
+          </select>
+          <span class="field-help" id="issue_type_help">Choisissez la situation la plus proche. Si rien ne correspond exactement, sélectionnez « Autre » et décrivez-la juste dessous.</span>
+        </label>
+
+        <label class="field-full" for="customer_message">Précisions utiles
+          <textarea id="customer_message" name="Message" rows="6" maxlength="5000" required placeholder="Exemple : depuis ce matin le PC démarre directement sur le BIOS. J’ai déjà essayé de l’éteindre et de le rallumer. J’ai des fichiers importants à récupérer."></textarea>
+          <span class="field-help">Indiquez ce que vous voyez à l’écran, depuis quand le problème existe et ce que vous avez déjà essayé. Pas besoin de vocabulaire technique.</span>
         </label>
 
         <section class="planner field-full" id="planner" aria-labelledby="planner-title" hidden>
           <h3 id="planner-title">Estimer le tarif et proposer un créneau</h3>
-          <p class="notice">Cette estimation ne confirme pas le rendez-vous.</p>
+          <p class="notice">Cette estimation ne confirme pas le rendez-vous. Pour une demande le jour même, le premier créneau proposé se situe au minimum 30 minutes après l’heure actuelle.</p>
           <div class="grid">
             <label for="planner_profile">Profil tarifaire
               <select id="planner_profile" name="Profil tarifaire" disabled><option value="particulier">Particulier</option><option value="professionnel">Professionnel</option><option value="collectivite">Collectivité</option></select>
@@ -118,7 +126,7 @@
 
         <div class="cta field-full"><button class="btn btn-primary" id="contact_submit" type="submit">Envoyer ma demande</button></div>
         <div id="contact-form-status" class="form-status" role="status" aria-live="polite" tabindex="-1"></div>
-        <p class="notice field-full">Les informations saisies servent uniquement à répondre à votre demande et ne sont pas enregistrées dans le site Cob & Clic.</p>
+        <p class="notice field-full">Les informations saisies servent uniquement à traiter votre demande. Elles sont transmises via FormSubmit à contact@cobandclic.fr et ne sont pas stockées dans le code du site Cob & Clic.</p>
       </form>
     </div>
   </section>

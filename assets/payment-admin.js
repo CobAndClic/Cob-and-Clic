@@ -178,7 +178,7 @@
     const text = String(raw || '').replace(/\r/g, '');
     const rows = {};
     const canonicalLabels = [
-      'Type de demande', 'Nom', 'email', 'Adresse e-mail', 'Téléphone', 'Ville / commune', 'Profil', 'Besoin', 'Message',
+      'Type de demande', 'Nom', 'email', 'Adresse e-mail', 'Téléphone', 'Ville / commune', 'Profil', 'Besoin', 'Problème / situation', 'Problème rencontré', 'Message',
       'Profil tarifaire', 'Date souhaitée', 'Heure souhaitée', 'Créneau souhaité', 'Tarif estimé', 'Détail du tarif'
     ];
     const labelMap = new Map(canonicalLabels.map((label) => [normalizeImportedLabel(label), label.toLowerCase()]));
@@ -286,6 +286,7 @@
     const phone = firstValue(rows, ['Téléphone']);
     const city = firstValue(rows, ['Ville / commune']);
     const besoin = firstValue(rows, ['Besoin']);
+    const issue = firstValue(rows, ['Problème / situation', 'Problème rencontré']);
     const message = firstValue(rows, ['Message']);
     const date = firstValue(rows, ['Date souhaitée']);
     const estimatedRate = firstValue(rows, ['Tarif estimé']);
@@ -295,7 +296,8 @@
     if (phone) fields.clientPhone.value = phone;
     if (city) fields.clientCity.value = city;
     if (besoin) fields.service.value = mapService(besoin);
-    if (message) fields.description.value = message.slice(0, 700);
+    const description = [issue, message].filter(Boolean).join(' — ');
+    if (description) fields.description.value = description.slice(0, 700);
     if (/^\d{4}-\d{2}-\d{2}$/.test(date)) fields.interventionDate.value = date;
     if (estimatedRate) {
       const money = estimatedRate.replace(',', '.').match(/\d+(?:\.\d{1,2})?/);
