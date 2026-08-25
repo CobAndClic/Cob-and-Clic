@@ -156,6 +156,14 @@ ol:last-child {
 }
 
 /* Header */
+
+.nav a,
+.nav .btn {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+}
+
 .site-header {
   position: sticky;
   top: 0;
@@ -1226,6 +1234,14 @@ details > :last-child {
     overflow: auto;
   }
 
+  .site-header .wrap {
+    gap: 18px;
+  }
+
+  .brand {
+    flex: 0 1 auto;
+  }
+
   .nav-toggle {
     display: none;
   }
@@ -1233,8 +1249,11 @@ details > :last-child {
   .nav {
     position: static;
     display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
     max-height: none;
     align-items: center;
+    justify-content: flex-end;
     gap: 2px;
     overflow: visible;
     padding: 0;
@@ -1246,9 +1265,14 @@ details > :last-child {
     min-height: 42px;
     padding: 9px 10px;
     font-size: 0.88rem;
+    white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
   }
 
   .nav .btn {
+    flex-shrink: 0;
     margin-top: 0;
     margin-left: 4px;
   }
@@ -1293,6 +1317,25 @@ details > :last-child {
 
   .mobile-cta {
     display: none;
+  }
+}
+
+
+@media (min-width: 860px) and (max-width: 1220px) {
+  .brand img {
+    width: 88px;
+    height: 88px;
+    flex-basis: 88px;
+  }
+
+  .brand-copy small {
+    max-width: 185px;
+    font-size: 0.68rem;
+  }
+
+  .nav a {
+    padding-inline: 8px;
+    font-size: 0.84rem;
   }
 }
 
