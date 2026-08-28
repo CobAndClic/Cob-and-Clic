@@ -88,7 +88,7 @@
       'Écran bleu / redémarrages / plantages',
       'Erreur Windows / mise à jour bloquée',
       'Un logiciel ne fonctionne plus correctement',
-      'Compte Windows local / mot de passe oublié',
+      'Accès Windows perdu / mot de passe oublié',
       'Récupération de fichiers / données',
       'Sauvegarde / transfert de données',
       'Autre panne informatique'
@@ -488,8 +488,15 @@
     requestType.value = 'Demande de devis - création de site web';
     serviceType.value = 'Création de site web';
   }
+  if (initialQuery.get('probleme') === 'acces-windows') {
+    requestType.value = appointmentValue;
+    serviceType.value = 'Assistance et dépannage informatique à domicile';
+  }
 
   syncIssueOptions();
+  if (initialQuery.get('probleme') === 'acces-windows') {
+    issueSel.value = 'Accès Windows perdu / mot de passe oublié';
+  }
   updateServicePresentation();
   setPlannerEnabled(requestType.value === appointmentValue);
 
